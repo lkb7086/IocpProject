@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="tinyxml">
+      <UniqueIdentifier>{4903a0c9-5c83-4311-b42c-d4f2de8ea552}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{2aac59d2-38ac-4105-8b90-16b4fc71bcae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{de8f1ba8-985a-4724-8094-e1dc793b526f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObjects">
+      <UniqueIdentifier>{a9f1645a-76fa-4de1-bbb4-780b19071575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameManagers">
+      <UniqueIdentifier>{9d238392-5f4b-419a-9e4f-9c763d38d014}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Threads">
+      <UniqueIdentifier>{2550da0e-2616-4c1e-818d-a41f5297d9d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Astar">
+      <UniqueIdentifier>{a2118047-1387-44e9-b5dd-e8cbdf164878}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessPacket.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="IocpGameServer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="NPC.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="AreaManager.h">
+      <Filter>GameManagers</Filter>
+    </ClInclude>
+    <ClInclude Include="NPCManager.h">
+      <Filter>GameManagers</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerManager.h">
+      <Filter>GameManagers</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseManager.h">
+      <Filter>GameManagers</Filter>
+    </ClInclude>
+    <ClInclude Include="DBThread.h">
+      <Filter>Threads</Filter>
+    </ClInclude>
+    <ClInclude Include="TickThread.h">
+      <Filter>Threads</Filter>
+    </ClInclude>
+    <ClInclude Include="NormalNPC.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="DetectNPC.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinystr.h">
+      <Filter>tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinyxml.h">
+      <Filter>tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemManager.h">
+      <Filter>GameManagers</Filter>
+    </ClInclude>
+    <ClInclude Include="MTRand.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadLocal.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefine.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Packet.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="FSM.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>Astar</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding.h">
+      <Filter>Astar</Filter>
+    </ClInclude>
+    <ClInclude Include="LifeObject.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Heap.h">
+      <Filter>Astar</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingNPC.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="IocpGameServer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessPacket.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="AreaManager.cpp">
+      <Filter>GameManagers</Filter>
+    </ClCompile>
+    <ClCompile Include="NPCManager.cpp">
+      <Filter>GameManagers</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerManager.cpp">
+      <Filter>GameManagers</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseManager.cpp">
+      <Filter>GameManagers</Filter>
+    </ClCompile>
+    <ClCompile Include="DBThread.cpp">
+      <Filter>Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="TickThread.cpp">
+      <Filter>Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalNPC.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="DetectNPC.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinystr.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxml.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxmlerror.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxmlparser.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemManager.cpp">
+      <Filter>GameManagers</Filter>
+    </ClCompile>
+    <ClCompile Include="MTRand.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadLocal.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="FSM.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Grid.cpp">
+      <Filter>Astar</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinding.cpp">
+      <Filter>Astar</Filter>
+    </ClCompile>
+    <ClCompile Include="LifeObject.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Heap.cpp">
+      <Filter>Astar</Filter>
+    </ClCompile>
+    <ClCompile Include="MovingNPC.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+</Project>

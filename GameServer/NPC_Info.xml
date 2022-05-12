@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+<NPC> <!--0.5/1.5/2.5-->
+  <monster0> <!--미노타우르스-->
+    <info rank="1" damage="26" hp="80" scale="0.5"/>
+  </monster0>
+  
+  <monster1> <!--위자드-->
+    <info rank="1" damage="26" hp="60" scale="0.5"/>
+  </monster1>
+
+  <monster2> <!--자이언트-->
+    <info rank="1" damage="16" hp="20" scale="0.5"/>
+  </monster2>
+
+  <monster3> <!--레드드래곤-->
+    <info rank="1" damage="16" hp="30" scale="0.5"/>
+  </monster3>
+
+  <monster4> <!--기병-->
+    <info rank="1" damage="16" hp="20" scale="0.5"/>
+  </monster4>
+
+  <!--zone2-->
+  <monster5>
+    <!--헬하운드-->
+    <info rank="1" damage="40" hp="220" scale="0.5"/>
+  </monster5>
+
+  <monster6>
+    <!--파이어 자이언트-->
+    <info rank="1" damage="0" hp="20" scale="0.5"/>
+  </monster6>
+
+  <monster7>
+    <!--스켈레톤 워리어-->
+    <info rank="1" damage="0" hp="20" scale="0.5"/>
+  </monster7>
+
+  <monster8>
+    <!--스켈레톤 챔피언-->
+    <info rank="1" damage="0" hp="20" scale="0.5"/>
+  </monster8>
+
+  <monster9>
+    <!--구울-->
+    <info rank="1" damage="0" hp="20" scale="0.5"/>
+  </monster9>
+
+  <monster10>
+    <!--상어-->
+    <info rank="1" damage="6" hp="20" scale="0.5"/>
+  </monster10>
+
+  <monster11>
+    <!--바다보스-->
+    <info rank="1" damage="6" hp="20" scale="0.5"/>
+  </monster11>
+  
+  
+  <class> name="sss" str="30" </class>
+
+</NPC>
