@@ -168,4 +168,6 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 		tls_pSer->CopyBuffer(pBuffer);
 		info.pPlayer->SendPost(tls_pSer->GetCurBufSize());
 	}
+
+	//CResultEraser eraser2(result, m_pConnection);
 }
