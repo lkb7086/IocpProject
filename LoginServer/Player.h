@@ -24,8 +24,8 @@ public:
 	inline unsigned int GetAccox_UID() { return m_nAccox_UID; }
 	inline void SetAccox_UID(unsigned int _nAccox_UID) { m_nAccox_UID = _nAccox_UID; }
 
-	inline unsigned int GetLSKey() { return m_nLSKey; }
-	inline void SetLSKey(unsigned int _nLSKey) { m_nLSKey = _nLSKey; }
+	inline unsigned long long GetLSKey() { return m_nLSKey; }
+	inline void SetLSKey(unsigned long long _nLSKey) { m_nLSKey = _nLSKey; }
 
 	bool m_bIsNotSelectedUnit; // 캐릭터를 선택하지 않고 그냥 나갔으면 true
 	char m_nTime;
@@ -34,5 +34,5 @@ private:
 	char	m_szID[MAX_ID_LENGTH];
 	bool    m_isConfirm;
 	unsigned int m_nAccox_UID;
-	unsigned int m_nLSKey;
+	unsigned long long m_nLSKey;
 };

@@ -144,7 +144,7 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 			return;
 
 		tls_pSer->StartSerialize();
-		tls_pSer->Serialize(static_cast<packet_type>(PacketType::Characters_Not));
+		tls_pSer->Serialize(static_cast<packet_type>(PacketType::StartLobby_Res));
 		tls_pSer->Serialize((char)state);
 
 		int index = 0;

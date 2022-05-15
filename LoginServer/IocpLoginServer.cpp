@@ -33,6 +33,8 @@ CIocpLoginServer::~CIocpLoginServer()
 void CIocpLoginServer::InitProcessFunc()
 {
 	un_mapPakect.insert(PACKET_PAIR(PacketType::ConfirmID_Req, CProcessPacket::fnConfirmID_Req));
+	un_mapPakect.insert(PACKET_PAIR(PacketType::ConfirmIDGameServer_Res, CProcessPacket::fnConfirmIDGameServer_Res));
+
 	un_mapPakect.insert(PACKET_PAIR(PacketType::JoinID_Req, CProcessPacket::fnJoinID_Req));
 
 	un_mapPakect.insert(PACKET_PAIR(PacketType::LogoutPlayerID_Not, CProcessPacket::LogoutPlayerID_Not));
@@ -66,11 +68,11 @@ bool CIocpLoginServer::OnAccept(CConnection *lpConnection)
 	lpConnection->SendPost(sizeof(stUtil_Empty));
 	*/
 
-	if (lpConnection->m_bIsCilent)
-	{
-		LOG(LOG_INFO_LOW, "SYSTEM | CIocpLoginServer::OnAccept() | Socket: %d", lpConnection->GetSocket());
-	}
 
+	ConnectionManager()->AddConnection(lpConnection);
+
+	LOG(LOG_INFO_LOW, "SYSTEM | CIocpLoginServer::OnAccept() | Socket: %d", lpConnection->GetSocket());
+	
 	return true;
 }
 
@@ -140,9 +142,6 @@ void CIocpLoginServer::OnClose(CConnection* lpConnection)
 		//system("pause");
 		return;
 	}
-
-	if (((CPlayer*)lpConnection)->m_bIsNotSelectedUnit)
-		DatabaseManager()->EraseID(((CPlayer*)lpConnection)->GetID());
 	
 	ConnectionManager()->RemoveConnection(lpConnection);
 

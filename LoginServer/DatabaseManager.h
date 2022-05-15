@@ -28,6 +28,7 @@ public:
 
 	void ConfirmID_Rq(CConnection* pConnection, char* pRecvedMsg);
 	void JoinID_Req(CConnection* pConnection, char* pRecvedMsg);
+	void ConfirmIDGameServer_Res(char* pMsg);
 	void LogoutPlayerID_Not(char* pRecvedMsg);
 
 

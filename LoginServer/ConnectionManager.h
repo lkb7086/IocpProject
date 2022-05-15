@@ -8,8 +8,8 @@ public:
 	CConnectionManager();
 	~CConnectionManager();
 
-	typedef pair< unsigned int, CConnection* >  CONN_PAIR;
-	typedef map< unsigned int, CConnection* >   CONN_MAP;
+	typedef pair< unsigned long long, CConnection* >  CONN_PAIR;
+	typedef map< unsigned long long, CConnection* >   CONN_MAP;
 	typedef CONN_MAP::iterator	 CONN_IT;
 
 	bool CreateConnection(INITCONFIG &initConfig, DWORD dwMaxConnection);

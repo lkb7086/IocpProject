@@ -7,6 +7,7 @@ public:
 	~CProcessPacket();
 
 	static void fnConfirmID_Req(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
+	static void fnConfirmIDGameServer_Res(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
 	static void fnJoinID_Req(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
 	static void LogoutPlayerID_Not(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
 	

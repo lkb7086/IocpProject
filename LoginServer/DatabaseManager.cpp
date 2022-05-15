@@ -86,40 +86,48 @@ void CDatabaseManager::ConfirmID_Rq(CConnection* pConnection, char* pRecvedMsg)
 	{
 		result = 1;
 	}
+
+	// 중복 ID체크
+	if (FindID(szID))
+	{
+		result = 2;
+	}
 	else
 	{
-		// 중복 ID체크
-		if (FindID(szID))
-		{
-			result = 2;
-		}
-		else
-		{
-			InsertID(szID);
+		InsertID(szID);
+	}
 
-			// 게임서버로 ID를 전달
-			m_pSerializer->StartSerialize();
-			m_pSerializer->Serialize(static_cast<packet_type>(PacketType::ConfirmID_Not));
-			m_pSerializer->Serialize(szID);
+	if (result == 0)
+	{
+		m_pSerializer->StartSerialize();
+		m_pSerializer->Serialize(static_cast<packet_type>(PacketType::ConfirmIDGameServer_Req));
+		m_pSerializer->Serialize(result);
+		m_pSerializer->Serialize(((CPlayer*)pConnection)->GetLSKey());
+		m_pSerializer->Serialize(szID);
 
-			CConnection* pGameSerserConection = ConnectionManager()->GetServerConn();
-			if (nullptr == pGameSerserConection) return;
-			char* pBuffer = pGameSerserConection->PrepareSendPacket(m_pSerializer->GetCurBufSize());
-			if (nullptr != pBuffer)
-			{
-				m_pSerializer->CopyBuffer(pBuffer);
-				pGameSerserConection->SendPost(m_pSerializer->GetCurBufSize());
-				//return;
-			}
-			else
-				LOG(LOG_ERROR_HIGH, "SYSTEM | CDatabaseManager::ConfirmID_Rq() | nullptr == pGameSerserConection");
-
-			//m_pSerializer->CopyBuffer(pBuffer);
-			//pGameSerserConection->SendPost(m_pSerializer->GetCurBufSize());
-		}
+		CConnection* pGameSerserConection = ConnectionManager()->GetServerConn();
+		if (nullptr == pGameSerserConection)
+			return;
+		char* pBuffer = pGameSerserConection->PrepareSendPacket(m_pSerializer->GetCurBufSize());
+		if (nullptr == pBuffer)
+			return;
+		m_pSerializer->CopyBuffer(pBuffer);
+		pGameSerserConection->SendPost(m_pSerializer->GetCurBufSize());
+	}
+	else
+	{
+		m_pSerializer->StartSerialize();
+		m_pSerializer->Serialize(static_cast<packet_type>(PacketType::ConfirmID_Res));
+		m_pSerializer->Serialize(result);
+		char* pBuf = pConnection->PrepareSendPacket(m_pSerializer->GetCurBufSize());
+		if (nullptr == pBuf)
+			return;
+		m_pSerializer->CopyBuffer(pBuf);
+		pConnection->SendPost(m_pSerializer->GetCurBufSize());
 	}
 
 
+	/*
 	// result: 1 = 아이디나 패스워드가 없음
     // result: 2 = 중복된 로그인 아이디
 	m_pSerializer->StartSerialize();
@@ -130,6 +138,7 @@ void CDatabaseManager::ConfirmID_Rq(CConnection* pConnection, char* pRecvedMsg)
 	if (nullptr == pWorldPlayerInfos) return;
 	m_pSerializer->CopyBuffer(pWorldPlayerInfos);
 	pConnection->SendPost(m_pSerializer->GetCurBufSize());
+	*/
 }
 
 void CDatabaseManager::JoinID_Req(CConnection* pConnection, char* pRecvedMsg)
@@ -182,14 +191,39 @@ void CDatabaseManager::JoinID_Req(CConnection* pConnection, char* pRecvedMsg)
 	m_pSerializer->StartSerialize();
 	m_pSerializer->Serialize(static_cast<packet_type>(PacketType::JoinID_Res));
 	m_pSerializer->Serialize(result);
+	m_pSerializer->Serialize(szID);
 	char* pWorldPlayerInfos = pConnection->PrepareSendPacket(m_pSerializer->GetCurBufSize());
 	if (nullptr == pWorldPlayerInfos) return;
 	m_pSerializer->CopyBuffer(pWorldPlayerInfos);
 	pConnection->SendPost(m_pSerializer->GetCurBufSize());
-
 }
 
+void CDatabaseManager::ConfirmIDGameServer_Res(char* pMsg)
+{
+	unsigned char result = 0;
+	unsigned long long key = 0;
+	char szID[MAX_ID_LENGTH]; memset(szID, 0, sizeof(szID));
 
+	m_pSerializer->StartDeserialize(pMsg);
+	m_pSerializer->Deserialize(result);
+	m_pSerializer->Deserialize(key);
+	m_pSerializer->Deserialize(szID, sizeof(szID));
+
+	CConnection* con = ConnectionManager()->FindConnection(key);
+	if (con == nullptr)
+		return;
+
+	m_pSerializer->StartSerialize();
+	m_pSerializer->Serialize(static_cast<packet_type>(PacketType::ConfirmID_Res));
+	m_pSerializer->Serialize(result);
+	m_pSerializer->Serialize(key);
+	m_pSerializer->Serialize(szID);
+	char* pBuf = con->PrepareSendPacket(m_pSerializer->GetCurBufSize());
+	if (nullptr == pBuf)
+		return;
+	m_pSerializer->CopyBuffer(pBuf);
+	con->SendPost(m_pSerializer->GetCurBufSize());
+}
 
 
 void CDatabaseManager::LogoutPlayerID_Not(char* pRecvedMsg)

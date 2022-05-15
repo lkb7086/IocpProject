@@ -49,8 +49,6 @@ bool CConnectionManager::CreateConnection(INITCONFIG &initConfig, DWORD dwMaxCon
 
 bool CConnectionManager::AddConnection(CConnection* pConnection)
 {
-	CMonitor::Owner lock(m_csConnection);
-
 	CONN_IT conn_it = m_mapConnection.find(((CPlayer*)pConnection)->GetLSKey());
 	//이미 접속되어 있는 연결이라면
 	if (conn_it != m_mapConnection.end())
@@ -61,6 +59,7 @@ bool CConnectionManager::AddConnection(CConnection* pConnection)
 		return false;
 	}
 
+	((CPlayer*)pConnection)->SetLSKey(IocpLoginServer()->GeneratePrivateKey());
 	m_mapConnection.insert(CONN_PAIR(((CPlayer*)pConnection)->GetLSKey(), pConnection));
 
 	return true;
@@ -68,12 +67,6 @@ bool CConnectionManager::AddConnection(CConnection* pConnection)
 
 bool CConnectionManager::RemoveConnection(CConnection* pConnection)
 {
-	// 캐릭터를 선택하지 않고 나갔다면
-	if (((CPlayer*)pConnection)->m_bIsNotSelectedUnit)
-		return true;
-
-	CMonitor::Owner lock(m_csConnection);
-	
 	CONN_IT conn_it = m_mapConnection.find(((CPlayer*)pConnection)->GetLSKey());
 	//접속되어 있는 연결이 없는경우
 	if (conn_it == m_mapConnection.end())

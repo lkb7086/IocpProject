@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 
+HANDLE g_hMutex = NULL;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -11,6 +12,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	int cols = 150; //가로 길이
 	_snprintf_s(command, _countof(command), _TRUNCATE, "mode con: lines=%d cols=%d", lines, cols);
 	system(command); //Windows CMD 명령문을 실행하는 함수
+
+	g_hMutex = CreateMutex(NULL, FALSE, _T("Mutex_LoginServer"));
+	if (NULL == g_hMutex)
+		return 0;
+	if (ERROR_ALREADY_EXISTS == GetLastError())
+	{
+		puts("The login server is already running.");
+		system("pause");
+		return 0;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	IocpLoginServer()->ServerStart();

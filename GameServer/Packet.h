@@ -10,7 +10,7 @@ enum class PacketType : packet_type
 	// 게임서버
 	Accept_Not,
 	StartLobby_Req,
-	Characters_Not,
+	StartLobby_Res,
 
 
 
@@ -69,7 +69,8 @@ enum class PacketType : packet_type
 
 	// 서버끼리 주고받는 타입
 	ImServer_Not,
-	ConfirmID_Not,
+	ConfirmIDGameServer_Req,
+	ConfirmIDGameServer_Res,
 	StartLobby_Not,
 	LogoutPlayerID_Not,
 

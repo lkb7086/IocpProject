@@ -26,7 +26,7 @@ public:
 	//서버 시작 함수
 	bool	ServerStart();
 
-	inline UINT	GeneratePrivateKey() { return ++m_nPrivateKey; }
+	inline unsigned long long	GeneratePrivateKey() { return ++m_nPrivateKey; }
 
 	//패킷처리 함수 설정
 	void			InitProcessFunc();
@@ -59,7 +59,8 @@ private:
 	//틱 쓰레드
 	CTickThread*		m_pTickThread;
 
-	UINT				m_nPrivateKey;
+	unsigned long long				m_nPrivateKey;
+
 
 	// TODO ////////////////////////////////////////////////////////
 private:
@@ -68,6 +69,5 @@ private:
 	typedef unordered_map< PacketType, funcProcessPacket >  PACKET_UNMAP;
 	typedef PACKET_UNMAP::iterator							PACKET_IT;
 	PACKET_UNMAP un_mapPakect;
-	////////////////////////////////////////////////////////////////
 };
 CREATE_FUNCTION(CIocpLoginServer, IocpLoginServer);

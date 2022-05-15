@@ -62,7 +62,7 @@ CIocpGameServer::~CIocpGameServer()
 
 void CIocpGameServer::InitProcessFunc()
 {
-	mapPakect.insert(PACKET_PAIR(PacketType::ConfirmID_Not, CProcessPacket::fnConfirmID_Not));
+	mapPakect.insert(PACKET_PAIR(PacketType::ConfirmIDGameServer_Req, CProcessPacket::fnConfirmID_Not));
 
 
 
@@ -704,35 +704,57 @@ bool CIocpGameServer::ConnectToNoSQLServer()
 
 void CIocpGameServer::ConfirmID_Not(CPlayer* pPlayer, char* pRecvedMsg)
 {
+	unsigned char result = 0;
+	unsigned long long key = 0;
 	char szID[MAX_ID_LENGTH]; memset(szID, 0, sizeof(szID));
 
 	tls_pSer->StartDeserialize(pRecvedMsg);
+	tls_pSer->Deserialize(result);
+	tls_pSer->Deserialize(key);
 	tls_pSer->Deserialize(szID, sizeof(szID));
 
-	if (m_setSERVER.end() == m_setSERVER.find(szID))
-		m_setSERVER.insert(szID);
+	if (m_mapSERVER.end() == m_mapSERVER.find(key))
+	{
+		m_mapSERVER.insert(key);
+
+		CSerializer& ser = *tls_pSer;
+		ser.StartSerialize();
+		ser.Serialize(static_cast<packet_type>(PacketType::ConfirmIDGameServer_Res));
+		ser.Serialize(result);
+		ser.Serialize(key);
+		ser.Serialize(szID);
+
+		char* pBuf = pPlayer->PrepareSendPacket(ser.GetCurBufSize());
+		if (nullptr == pBuf)
+			return;
+		ser.CopyBuffer(pBuf);
+		pPlayer->SendPost(ser.GetCurBufSize());
+	}
 	else
 	{
-		m_setSERVER.erase(szID);
+		m_mapSERVER.erase(key);
 		LOG(LOG_ERROR_LOW, "CIocpGameServer::Recv_LSKey_Cn() | m_setSERVER 중복");
 	}
 }
 
 void CIocpGameServer::StartLobby_Req(CPlayer* pPlayer, char* pRecvedMsg)
 {
+	unsigned long long serverKey = 0;
 	char szID[MAX_ID_LENGTH]; memset(szID, 0, sizeof(szID));
 
 	tls_pSer->StartDeserialize(pRecvedMsg);
+	tls_pSer->Deserialize(serverKey);
 	tls_pSer->Deserialize(szID, sizeof(szID));
 
-	if (m_setSERVER.find(szID) == m_setSERVER.end())
+	if (m_mapSERVER.find(serverKey) == m_mapSERVER.end())
 	{
-		LOG(LOG_ERROR_LOW, "CIocpGameServer::StartLobby_Req() | m_setSERVER.find(szID) == m_setSERVER.end()");
+		LOG(LOG_ERROR_LOW, "CIocpGameServer::StartLobby_Req() | m_setSERVER.find(serverKey) == m_setSERVER.end()");
 		return;
 	}
 	else
 	{
-		m_setSERVER.erase(szID);
+		m_mapSERVER.erase(serverKey);
+
 		pPlayer->SetID(szID);
 
 		// DB에서 다수의 캐릭터들을 확인

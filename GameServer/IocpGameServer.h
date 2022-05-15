@@ -153,7 +153,7 @@ private:
 	////////////////////////////////////////////////////////////////
 	concurrent_unordered_map<int, CConnection*> m_setConn;
 	////////////////////////////////////////////////////////////////
-	set<string> m_setSERVER;
+	set<unsigned long long> m_mapSERVER;
 };
 CREATE_FUNCTION(CIocpGameServer, IocpGameServer);
 
