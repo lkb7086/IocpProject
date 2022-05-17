@@ -376,6 +376,14 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// 액티브지역중에서도 새로생긴 액티브지역으로만 패킷을 보내야한다.
 		// 브로드캐스트
+		tls_pSer->StartSerialize();
+		tls_pSer->Serialize(static_cast<packet_type>(PacketType::UpdateAreaForCreateObject_Not));
+		tls_pSer->Serialize(pPlayer->GetKey());
+		tls_pSer->Serialize(pPlayer->GetHP());
+		tls_pSer->Serialize(pPlayer->m_pos.x);
+		tls_pSer->Serialize(pPlayer->m_pos.y);
+		tls_pSer->Serialize(pPlayer->m_pos.z);
+
 		for (unsigned int i = 0; i < stackSize; i++)
 		{
 			if (0 > byNewArea[i] || byNewArea[i] >= MAX_AREA)
@@ -386,17 +394,12 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 				CPlayer* pAreaPlayer = (CPlayer*)*area_it;
 				if (pAreaPlayer == pPlayer)
 					continue;
-				stCL_GS_UpdateAreaForDeleteObject* pCreate =
-					(stCL_GS_UpdateAreaForDeleteObject*)pAreaPlayer->PrepareSendPacket(sizeof(stCL_GS_UpdateAreaForDeleteObject));
-				if (nullptr == pCreate)
-					continue;
-				pCreate->type = static_cast<packet_type>(PacketType::UpdateAreaForCreateObject_Not);
-				pCreate->uiPKey = pPlayer->GetKey();
-				pCreate->hp = pPlayer->GetHP();
-				pCreate->fPosX = pPlayer->m_pos.x;
-				pCreate->fPosY = pPlayer->m_pos.y;
-				pCreate->fPosZ = pPlayer->m_pos.z;
-				pAreaPlayer->SendPost(sizeof(stCL_GS_UpdateAreaForDeleteObject));
+
+				char* pSendBuffer = pAreaPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+				if (nullptr == pSendBuffer)
+					return;
+				tls_pSer->CopyBuffer(pSendBuffer);
+				pAreaPlayer->SendPost(tls_pSer->GetCurBufSize());
 
 				uiAreaPlayerCnt++; // 밑에서 가변버퍼 보낼때 인원수가 필요하다.
 			}
@@ -422,9 +425,9 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 					continue;
 				tls_pSer->Serialize(pAreaPlayer->GetKey());
 				tls_pSer->Serialize(pAreaPlayer->GetHP());
-				tls_pSer->SetStream(&pAreaPlayer->m_pos.x, sizeof(float));
-				tls_pSer->SetStream(&pAreaPlayer->m_pos.y, sizeof(float));
-				tls_pSer->SetStream(&pAreaPlayer->m_pos.z, sizeof(float));
+				tls_pSer->Serialize(pAreaPlayer->m_pos.x);
+				tls_pSer->Serialize(pAreaPlayer->m_pos.y);
+				tls_pSer->Serialize(pAreaPlayer->m_pos.z);
 			}
 		}
 		char* pSendBuffer = pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());

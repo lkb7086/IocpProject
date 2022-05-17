@@ -48,6 +48,17 @@ void CProcessPacket::fnStartLobby_Req(CPlayer* pPlayer, DWORD dwSize, char* pRec
 	IocpGameServer()->StartLobby_Req(pPlayer, pRecvedMsg);
 }
 
+void CProcessPacket::fnCreateCharacter_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+{
+	DatabaseManager()->CreateCharacter_Req(stPlayerInfo(pPlayer, dwSize, pRecvedMsg));
+}
+
+void CProcessPacket::fnDeleteCharacter_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+{
+	DatabaseManager()->DeleteCharacter_Req(stPlayerInfo(pPlayer, dwSize, pRecvedMsg));
+}
+
+
 void CProcessPacket::CL_GS_Login(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	if (!PlayerManager()->AddPlayer(pPlayer))
@@ -82,13 +93,6 @@ void CProcessPacket::CL_GS_Login(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMs
 	pPlayer->SetIsConfirm(true);
 	LOG(LOG_INFO_LOW, "ID (%u) Connected. / Current Players (%u)",
 		pPlayer->GetKey(), PlayerManager()->GetPlayerCnt());
-
-	// 임시 호스트플레이어 설정
-	//if (PlayerManager()->m_isNotSetupHost)
-	//{
-		//PlayerManager()->m_pHostPlayer = pPlayer;
-		//PlayerManager()->m_isNotSetupHost = false;
-	//}
 }
 
 void CProcessPacket::CL_GS_CurNPCPosFromHost(CPlayer* _pPlayer, DWORD dwSize, char* _pRecvedMsg)

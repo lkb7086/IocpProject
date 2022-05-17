@@ -63,15 +63,10 @@ CIocpGameServer::~CIocpGameServer()
 void CIocpGameServer::InitProcessFunc()
 {
 	mapPakect.insert(PACKET_PAIR(PacketType::ConfirmIDGameServer_Req, CProcessPacket::fnConfirmID_Not));
-
-
-
 	mapPakect.insert(PACKET_PAIR(PacketType::StartLobby_Req, CProcessPacket::fnStartLobby_Req));
-
+	mapPakect.insert(PACKET_PAIR(PacketType::CreateCharacter_Req, CProcessPacket::fnCreateCharacter_Req));
+	mapPakect.insert(PACKET_PAIR(PacketType::DeleteCharacter_Req, CProcessPacket::fnDeleteCharacter_Req));
 	
-
-
-
 
 	// 로그인
 	mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_Login, CProcessPacket::CL_GS_Login));
@@ -372,14 +367,6 @@ void CIocpGameServer::OnPrepareClose(CConnection* lpConnection)
 
 void CIocpGameServer::OnClose(CConnection* lpConnection)
 {
-	if (!lpConnection->m_bIsCilent)
-	{
-		puts("서버종료");
-		return;
-	}
-
-	puts("연결해제");
-
 	CPlayer* pPlayer = static_cast<CPlayer*>(lpConnection);
 
 	auto it = m_setConn.find(lpConnection->GetIndex());
@@ -393,7 +380,13 @@ void CIocpGameServer::OnClose(CConnection* lpConnection)
 		m_setConn.unsafe_erase(lpConnection->GetIndex());
 	}
 
+	if (!lpConnection->m_bIsCilent)
+	{
+		puts("서버종료");
+		return;
+	}
 
+	puts("연결해제");
 
 	tls_pSer->StartSerialize();
 	tls_pSer->Serialize(static_cast<packet_type>(PacketType::LogoutPlayerID_Not));

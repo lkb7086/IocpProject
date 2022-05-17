@@ -150,12 +150,13 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 		int index = 0;
 		for (int i = 0; i < state; i++)
 		{
-			// uid(bigint) id(varchar45) name(varchar45) index(tinyint)
-			tls_pSer->Serialize(atoll(row[index++]));
-			index++; //tls_pSer->Serialize(row[index++]);
-			printf("%s ", row[index]);
+			// uid(bigint) id(varchar45) name(varchar45) index(tinyint) species(tinyint) gender(tinyint)
+			index++;
+			index++;
 			tls_pSer->Serialize(row[index++]);
 			tls_pSer->Serialize((char)atoi(row[index++]));
+			tls_pSer->Serialize((char)atoi(row[index++]));
+			tls_pSer->Serialize((char)atoi(row[index]));
 			row = mysql_fetch_row(result);
 			if (nullptr == row)
 				break;
@@ -170,4 +171,123 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 	}
 
 	//CResultEraser eraser2(result, m_pConnection);
+}
+
+void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
+{
+	char name[MAX_NICKNAME_LENGTH]; memset(name, 0, sizeof(name));
+	char index = 0;
+	char species = 0;
+	char gender = 0;
+	char result = 0;
+
+	tls_pSer->StartDeserialize(info.pMsg);
+	tls_pSer->Deserialize(name, sizeof(name));
+	tls_pSer->Deserialize(index);
+	tls_pSer->Deserialize(species);
+	tls_pSer->Deserialize(gender);
+
+	char query[128]; memset(query, 0, sizeof(query));
+	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT * FROM character WHERE name = '%s'", name);
+
+	int state = mysql_query(m_pConnection, query);
+
+	MYSQL_RES* pResult = nullptr;
+	pResult = mysql_store_result(m_pConnection);
+	CResultEraser eraser(pResult, m_pConnection);
+
+	if (0 != state)
+	{
+		LOG(LOG_ERROR_HIGH, "SYSTEM | CDatabaseManager::CreateCharacter_Req() | 1 mysql_query() 에러: %s", mysql_error(m_pConnection));
+		return;
+	}
+
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::CreateCharacter_Res));
+
+	state = mysql_num_rows(pResult);
+	if (0 == state)
+	{
+		// 캐릭터가 있으면 실패
+		result = 1;
+		tls_pSer->Serialize((char)result);
+	}
+	else
+	{
+		// 캐릭터가 없으면 INSERT
+		memset(query, 0, sizeof(query));
+		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO character VALUES (NULL, '%s', '%s', %d, %d, %d)", info.pPlayer->GetID(), name, index, species, gender);
+		state = mysql_query(m_pConnection, query);
+		if (0 != state)
+		{
+			LOG(LOG_INFO_LOW, "SYSTEM | CDatabaseManager::CreateCharacter_Req() | 2 mysql_query() 에러: %s", mysql_error(m_pConnection));
+		}
+
+		tls_pSer->Serialize(result);
+		tls_pSer->Serialize(name);
+		tls_pSer->Serialize(index);
+		tls_pSer->Serialize(species);
+		tls_pSer->Serialize(gender);
+	}
+
+	char* pBuffer = info.pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+	if (nullptr == pBuffer)
+		return;
+	tls_pSer->CopyBuffer(pBuffer);
+	info.pPlayer->SendPost(tls_pSer->GetCurBufSize());
+}
+
+void CDatabaseManager::DeleteCharacter_Req(const stPlayerInfo& info)
+{
+	char name[MAX_NICKNAME_LENGTH]; memset(name, 0, sizeof(name));
+	char result = 0;
+
+	tls_pSer->StartDeserialize(info.pMsg);
+	tls_pSer->Deserialize(name, sizeof(name));
+
+	char query[128]; memset(query, 0, sizeof(query));
+	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT * FROM character WHERE name = '%s'", name);
+
+	int state = mysql_query(m_pConnection, query);
+
+	MYSQL_RES* pResult = nullptr;
+	pResult = mysql_store_result(m_pConnection);
+	CResultEraser eraser(pResult, m_pConnection);
+
+	if (0 != state)
+	{
+		LOG(LOG_ERROR_HIGH, "SYSTEM | CDatabaseManager::DeleteCharacter_Req() | 1 mysql_query() 에러: %s", mysql_error(m_pConnection));
+		return;
+	}
+
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::DeleteCharacter_Res));
+
+	state = mysql_num_rows(pResult);
+	if (state == 0)
+	{
+		// 삭제할 캐릭터가 없어서 실패
+		result = 1;
+		tls_pSer->Serialize(result);
+	}
+	else
+	{
+		// 삭제
+		memset(query, 0, sizeof(query));
+		_snprintf_s(query, _countof(query), _TRUNCATE, "DELETE FROM character WHERE name = '%s'", name);
+		state = mysql_query(m_pConnection, query);
+		if (0 != state)
+		{
+			LOG(LOG_INFO_LOW, "SYSTEM | CDatabaseManager::DeleteCharacter_Req() | 2 mysql_query() 에러: %s", mysql_error(m_pConnection));
+		}
+
+		tls_pSer->Serialize(result);
+		tls_pSer->Serialize(name);
+	}
+
+	char* pBuffer = info.pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+	if (nullptr == pBuffer)
+		return;
+	tls_pSer->CopyBuffer(pBuffer);
+	info.pPlayer->SendPost(tls_pSer->GetCurBufSize());
 }

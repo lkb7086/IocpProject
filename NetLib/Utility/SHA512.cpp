@@ -139,18 +139,18 @@ void CSHA512::final(unsigned char *digest)
 	}
 }
 
-std::string CSHA512::sha512(const char* input)
+std::string CSHA512::sha512(std::string input)
 {
 	unsigned char digest[CSHA512::DIGEST_SIZE];
 	memset(digest, 0, CSHA512::DIGEST_SIZE);
 	CSHA512 ctx = CSHA512();
 	ctx.init();
-	ctx.update((unsigned char*)input, (unsigned int)strlen(input));
+	ctx.update((unsigned char*)input.c_str(), input.length());
 	ctx.final(digest);
 
 	char buf[2 * CSHA512::DIGEST_SIZE + 1];
 	buf[2 * CSHA512::DIGEST_SIZE] = 0;
 	for (int i = 0; i < CSHA512::DIGEST_SIZE; i++)
-		sprintf_s(buf + i * 2, _countof(buf), "%02x", digest[i]);
+		sprintf(buf + i * 2, "%02x", digest[i]);
 	return std::string(buf);
 }

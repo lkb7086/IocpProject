@@ -57,17 +57,22 @@ void CDatabaseManager::ConfirmID_Rq(CConnection* pConnection, char* pRecvedMsg)
 {
 	char szID[MAX_ID_LENGTH]; memset(szID, 0, sizeof(szID));
 	char szPass[MAX_PASS_LENGTH]; memset(szPass, 0, sizeof(szPass));
-	unsigned char result = 0;
+	char result = 0;
 
 	m_pSerializer->StartDeserialize(pRecvedMsg);
 	m_pSerializer->Deserialize(szID, sizeof(szID));
 	m_pSerializer->Deserialize(szPass, sizeof(szPass));
 
-	// sql 인젝션 검사, '있는지 확인할 것
+	// sql인젝션 특수문자 들어가있으면
+	char* pSearch = strchr(szID, ';');
+	if (pSearch != nullptr)
+		return;
 
+	CSHA512 hash;
+	const string& hash2 = hash.sha512(szPass);
 
 	char query[256]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "select id from user where id = '%s' and pass = '%s'", szID, szPass);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "select id from user where id = '%s' and pass = '%s'", szID, hash2.c_str());
 
 	int	state = -1;
 	state = mysql_query(m_pConnection, query);
@@ -145,12 +150,16 @@ void CDatabaseManager::JoinID_Req(CConnection* pConnection, char* pRecvedMsg)
 {
 	char szID[MAX_ID_LENGTH]; memset(szID, 0, sizeof(szID));
 	char szPass[MAX_PASS_LENGTH]; memset(szPass, 0, sizeof(szPass));
-	unsigned char result = 0;
+	char result = 0;
 
 	m_pSerializer->StartDeserialize(pRecvedMsg);
 	m_pSerializer->Deserialize(szID, sizeof(szID));
 	m_pSerializer->Deserialize(szPass, sizeof(szPass));
 
+	// sql인젝션 특수문자 들어가있으면
+	char* pSearch = strchr(szID, ';');
+	if (pSearch != nullptr)
+		return;
 
 	char query[256]; memset(query, 0, sizeof(query));
 	_snprintf_s(query, _countof(query), _TRUNCATE, "select id from user where id = '%s'", szID);
@@ -170,9 +179,13 @@ void CDatabaseManager::JoinID_Req(CConnection* pConnection, char* pRecvedMsg)
 	state = mysql_num_rows(pResult);
 	if (state == 0)
 	{
+		CSHA512 hash;
+		const string& hash2 = hash.sha512(szPass);
+
+
 		// 겹치는 아이디가 없으니 insert
 		memset(query, 0, sizeof(query));
-		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO user (id, pass, date) VALUES ('%s', '%s', now());", szID, szPass);
+		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO user (id, pass, date) VALUES ('%s', '%s', now());", szID, hash2.c_str());
 		state = mysql_query(m_pConnection, query);
 		if (0 != state)
 		{

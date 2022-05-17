@@ -10,7 +10,19 @@ enum class PacketType : packet_type
 	// 게임서버
 	Accept_Not,
 	StartLobby_Req,
-	StartLobby_Res,
+	StartLobby_Res,	
+	CreateCharacter_Res,
+	DeleteCharacter_Res,
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -75,7 +87,9 @@ enum class PacketType : packet_type
 	LogoutPlayerID_Not,
 
 	// GameDB와 주고받는 타입
-	TestLogin_Rq = 50001
+	TestLogin_Rq = 50001,
+	CreateCharacter_Req,
+	DeleteCharacter_Req
 };
 
 

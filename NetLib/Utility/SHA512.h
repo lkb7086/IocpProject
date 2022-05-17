@@ -18,7 +18,7 @@ public:
 	void final(unsigned char *digest);
 	static const unsigned int DIGEST_SIZE = (512 / 8);
 	// 복사방지때문에 반드시 const string&형으로 받아주십시오. // 예: const string& hash = sha512("abcdef");
-	std::string sha512(const char* input);
+	std::string sha512(std::string input);
 
 protected:
 	void transform(const unsigned char *message, unsigned int block_nb);
