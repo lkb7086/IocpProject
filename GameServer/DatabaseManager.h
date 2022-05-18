@@ -42,11 +42,10 @@ public:
 
 
 	// DBÇÔ¼ö
-	void TestLogin_Rq(const stPlayerInfo& info);
 	void StartLobby_Not(const stPlayerInfo& info);
 	void CreateCharacter_Req(const stPlayerInfo& info);
 	void DeleteCharacter_Req(const stPlayerInfo& info);
-
+	void StartGame_Req(const stPlayerInfo& info);
 	
 
 

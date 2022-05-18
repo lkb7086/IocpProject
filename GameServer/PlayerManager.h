@@ -16,6 +16,23 @@ public:
 	CPlayer* FindPlayer(DWORD dwPkey);
 	inline unsigned __int32 GetPlayerCnt() { return (unsigned __int32)m_mapPlayer.size(); }
 
+
+
+
+
+
+
+
+
+	void Notice_Req()
+	{
+
+	}
+
+
+
+
+
 	void GS_CL_CurNPCPosFromHost(CPlayer& player);
 
 	void CL_GS_Chat(char* pMsg)

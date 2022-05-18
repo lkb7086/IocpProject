@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "processpacket.h"
 
-void CProcessPacket::fnTCP_World_SendToCL_RecvBufferFromServer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+void CProcessPacket::fnSendToWorldPlayer_RecvBufferFromServer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	PlayerManager()->Send_TCP_RecvBufferFromServer(pRecvedMsg, dwSize);
 }
@@ -31,7 +31,7 @@ void CProcessPacket::fnPushDBQueue(CPlayer* pPlayer, DWORD dwSize, char* pRecved
 	//DatabaseManager()->PushDBQueue(pPlayer, dwSize, pRecvedMsg);
 }
 
-void CProcessPacket::fnTCP_AREA_SendToCL_RecvBufferFromServer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+void CProcessPacket::fnSendToAreaPlayer_RecvBufferFromServer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	AreaManager()->Send_TCP_RecvBufferFromServer(dwSize, pRecvedMsg);
 }
@@ -57,6 +57,13 @@ void CProcessPacket::fnDeleteCharacter_Req(CPlayer* pPlayer, DWORD dwSize, char*
 {
 	DatabaseManager()->DeleteCharacter_Req(stPlayerInfo(pPlayer, dwSize, pRecvedMsg));
 }
+
+void CProcessPacket::fnStartGame_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+{
+	DatabaseManager()->StartGame_Req(stPlayerInfo(pPlayer, dwSize, pRecvedMsg));
+}
+
+
 
 
 void CProcessPacket::CL_GS_Login(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
@@ -212,9 +219,4 @@ void CProcessPacket::CL_GS_CL_Chat(CPlayer* pPlayer, DWORD dwSize, char* pRecved
 void CProcessPacket::fnStartLobby_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	DatabaseManager()->StartLobby_Not(stPlayerInfo(pPlayer, dwSize, pRecvedMsg));
-}
-
-void CProcessPacket::TestLogin_Rq(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
-{
-	DatabaseManager()->TestLogin_Rq(stPlayerInfo(pPlayer, dwSize, pRecvedMsg));
 }

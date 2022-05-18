@@ -45,31 +45,32 @@ public:
 		EraseID(szID);
 	}
 
-	void InsertID(char _szID[])
+	void InsertID(string _szID)
 	{
 		// ID 중복방지를 위해 추가
 		if (m_mapUserID.end() == m_mapUserID.find(_szID))
 			m_mapUserID.insert(_szID);
 	}
 
-	void EraseID(char _szID[])
+	void EraseID(string _szID)
 	{
-		USERID_IT it = m_mapUserID.find(_szID);
+		auto it = m_mapUserID.find(_szID);
 		if (m_mapUserID.end() != it)
 		{
 			m_mapUserID.erase(it);
 
+			/*
 			wchar_t strUnicode[256] = { 0, };
 			int nLen = MultiByteToWideChar(CP_UTF8, 0, _szID, strlen(_szID), NULL, NULL);
 			MultiByteToWideChar(CP_UTF8, 0, _szID, strlen(_szID), strUnicode, nLen);
 
-			wprintf(L"Logout: %s\n", strUnicode);
+			wprintf(L"Logout: %s\n", strUnicode);*/
 		}
 		//else
 			//printf("error: Logout할 때 아이디 지우는것을 실패했다: %s\n", _szID);
 	}
 
-	bool FindID(char _szID[])
+	bool FindID(string _szID)
 	{
 		// 중복 ID체크
 		if (m_mapUserID.end() != m_mapUserID.find(_szID))
@@ -88,9 +89,7 @@ private:
 
 	CSerializer *m_pSerializer;
 
-	typedef set<string>	  USERID_MAP;
-	typedef USERID_MAP::iterator	  USERID_IT;
-	USERID_MAP m_mapUserID;
+	set<string> m_mapUserID;
 private:
 	class CResultEraser final
 	{

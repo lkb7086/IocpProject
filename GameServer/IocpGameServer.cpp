@@ -66,8 +66,10 @@ void CIocpGameServer::InitProcessFunc()
 	mapPakect.insert(PACKET_PAIR(PacketType::StartLobby_Req, CProcessPacket::fnStartLobby_Req));
 	mapPakect.insert(PACKET_PAIR(PacketType::CreateCharacter_Req, CProcessPacket::fnCreateCharacter_Req));
 	mapPakect.insert(PACKET_PAIR(PacketType::DeleteCharacter_Req, CProcessPacket::fnDeleteCharacter_Req));
-	
+	mapPakect.insert(PACKET_PAIR(PacketType::StartGame_Req, CProcessPacket::fnStartGame_Req));
 
+
+	//Notice_Req
 	// 로그인
 	mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_Login, CProcessPacket::CL_GS_Login));
 	// NPC초기화
@@ -96,7 +98,11 @@ void CIocpGameServer::InitProcessFunc()
 	
 
 
-	mapPakect.insert(PACKET_PAIR(PacketType::TestLogin_Rq, CProcessPacket::TestLogin_Rq));
+
+
+
+
+	mapPakect.insert(PACKET_PAIR(PacketType::Notice_Not, CProcessPacket::fnSendToWorldPlayer_RecvBufferFromServer));
 }
 
 bool CIocpGameServer::GameServerStart()
@@ -749,6 +755,7 @@ void CIocpGameServer::StartLobby_Req(CPlayer* pPlayer, char* pRecvedMsg)
 		m_mapSERVER.erase(serverKey);
 
 		pPlayer->SetID(szID);
+
 
 		// DB에서 다수의 캐릭터들을 확인
 		tls_pSer->StartSerialize();

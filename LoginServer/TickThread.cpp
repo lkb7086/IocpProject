@@ -13,4 +13,8 @@ void CTickThread::OnInitThread() {}
 
 void CTickThread::OnCloseThread() {}
 
-void CTickThread::OnProcess() { }
+void CTickThread::OnProcess()
+{
+
+
+}

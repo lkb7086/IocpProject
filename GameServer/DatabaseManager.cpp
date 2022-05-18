@@ -69,45 +69,7 @@ void CDatabaseManager::MySql_QuickUpdate()
 }
 
 
-void CDatabaseManager::TestLogin_Rq(const stPlayerInfo& info)
-{
-	char szID[MAX_ID_LENGTH]; memset(szID, 0, sizeof(szID));
-	char szPass[MAX_PASS_LENGTH]; memset(szPass, 0, sizeof(szPass));
 
-	tls_pSer->StartDeserialize(info.pMsg);
-	tls_pSer->Deserialize(szID, sizeof(szID));
-	tls_pSer->Deserialize(szPass, sizeof(szPass));
-
-	char query[128]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT id FROM user where id = '%s' and pass = '%s'", szID, szPass);
-
-	int state = mysql_query(m_pConnection, query);
-
-	MYSQL_RES* result = nullptr;
-	result = mysql_store_result(m_pConnection);
-	CResultEraser eraser(result, m_pConnection);
-
-	if (0 != state)
-	{
-		LOG(LOG_ERROR_HIGH, "SYSTEM | CDatabaseManager::TestLogin_Rq() | 1 mysql_query() 에러: %s", mysql_error(m_pConnection));
-		return;
-	}
-
-
-
-
-	//while (mysql_more_results(m_pConnection))
-		//mysql_next_result(m_pConnection);
-
-	/*
-	tls_pSer->StartSerialize();
-	tls_pSer->Serialize((unsigned short)38);
-
-	char* p = m_ringBuffer.ForwardMark(tls_pSer->GetCurBufSize());
-	tls_pSer->CopyBuffer(p);
-	IocpGameServer()->m_pTickThread->Enqueue_PacketQ(info.pPlayer, tls_pSer->GetCurBufSize(), p);
-	*/
-}
 
 void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 {
@@ -122,9 +84,9 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 
 	int state = mysql_query(m_pConnection, query);
 
-	MYSQL_RES* result = nullptr;
-	result = mysql_store_result(m_pConnection);
-	CResultEraser eraser(result, m_pConnection);
+	MYSQL_RES* pResult = nullptr;
+	pResult = mysql_store_result(m_pConnection);
+	CResultEraser eraser(pResult, m_pConnection);
 
 	if (0 != state)
 	{
@@ -132,14 +94,14 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 		return;
 	}
 
-	state = mysql_num_rows(result);
+	state = mysql_num_rows(pResult);
 	if (0 == state)
 	{
 		// 캐릭터가 아무것도 없으면 아무것도 안한다
 	}
 	else if (state > 0)
 	{
-		MYSQL_ROW row = mysql_fetch_row(result);
+		MYSQL_ROW row = mysql_fetch_row(pResult);
 		if (row == nullptr)
 			return;
 
@@ -157,7 +119,7 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 			tls_pSer->Serialize((char)atoi(row[index++]));
 			tls_pSer->Serialize((char)atoi(row[index++]));
 			tls_pSer->Serialize((char)atoi(row[index]));
-			row = mysql_fetch_row(result);
+			row = mysql_fetch_row(pResult);
 			if (nullptr == row)
 				break;
 			index = 0;
@@ -221,6 +183,7 @@ void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 		if (0 != state)
 		{
 			LOG(LOG_INFO_LOW, "SYSTEM | CDatabaseManager::CreateCharacter_Req() | 2 mysql_query() 에러: %s", mysql_error(m_pConnection));
+			return;
 		}
 
 		tls_pSer->Serialize(result);
@@ -279,6 +242,7 @@ void CDatabaseManager::DeleteCharacter_Req(const stPlayerInfo& info)
 		if (0 != state)
 		{
 			LOG(LOG_INFO_LOW, "SYSTEM | CDatabaseManager::DeleteCharacter_Req() | 2 mysql_query() 에러: %s", mysql_error(m_pConnection));
+			return;
 		}
 
 		tls_pSer->Serialize(result);
@@ -291,3 +255,57 @@ void CDatabaseManager::DeleteCharacter_Req(const stPlayerInfo& info)
 	tls_pSer->CopyBuffer(pBuffer);
 	info.pPlayer->SendPost(tls_pSer->GetCurBufSize());
 }
+
+void CDatabaseManager::StartGame_Req(const stPlayerInfo& info)
+{
+	char name[MAX_NICKNAME_LENGTH]; memset(name, 0, sizeof(name));
+	char result = 0;
+
+	tls_pSer->StartDeserialize(info.pMsg);
+	tls_pSer->Deserialize(name, sizeof(name));
+
+	char query[128]; memset(query, 0, sizeof(query));
+	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT * FROM character WHERE name = '%s'", name);
+
+	int state = mysql_query(m_pConnection, query);
+
+	MYSQL_RES* pResult = nullptr;
+	pResult = mysql_store_result(m_pConnection);
+	CResultEraser eraser(pResult, m_pConnection);
+
+	if (0 != state)
+	{
+		LOG(LOG_ERROR_HIGH, "SYSTEM | CDatabaseManager::StartGame_Req() | 1 mysql_query() 에러: %s", mysql_error(m_pConnection));
+		return;
+	}
+
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::StartGame_Res));
+
+	state = mysql_num_rows(pResult);
+	if (state == 0)
+	{
+		// 시작할 캐릭터가 없어서 실패
+		result = 1;
+		tls_pSer->Serialize(result);
+	}
+	else
+	{
+		MYSQL_ROW row = mysql_fetch_row(pResult);
+		if (row == nullptr)
+			return;
+
+		tls_pSer->Serialize(result);
+		int index = 0;
+		index++;
+		index++;
+		tls_pSer->Serialize(row[index++]);
+	}
+
+	char* pBuffer = info.pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+	if (nullptr == pBuffer)
+		return;
+	tls_pSer->CopyBuffer(pBuffer);
+	info.pPlayer->SendPost(tls_pSer->GetCurBufSize());
+}
+

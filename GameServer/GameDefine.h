@@ -9,7 +9,7 @@ const int SERVER_TICK = 1000;
 const int UPDATE_TICK = 16;
 const int MAX_PROCESSFUNC = 0xFFFF;
 const int MAX_USER_COUNT = 1000;
-const int KEEPALIVE_TICK = 30;
+const int KEEPALIVE_TICK = 60 * 30;
 
 const int AREA_SECTOR_CNT = 6; // 한 행or열의 섹터갯수
 const int AREA_SECTOR_LINE = 2000; // 한 섹터의 크기(디폴트 10.0f)

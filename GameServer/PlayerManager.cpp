@@ -80,7 +80,7 @@ CPlayer* CPlayerManager::FindPlayer(DWORD dwPkey)
 
 void CPlayerManager::Send_TCP_RecvBufferFromServer(char* pRecvBuffer, DWORD dwSize)
 {
-	for (auto player_it = m_mapPlayer.begin(); player_it != m_mapPlayer.end(); player_it++)
+	for (auto player_it = m_mapPlayer.begin(); player_it != m_mapPlayer.end(); ++player_it)
 	{
 		CPlayer* pWorldPlayer = (CPlayer*)player_it->second;
 		char* pSendBuffer = pWorldPlayer->PrepareSendPacket(dwSize);

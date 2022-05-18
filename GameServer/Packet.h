@@ -13,7 +13,7 @@ enum class PacketType : packet_type
 	StartLobby_Res,	
 	CreateCharacter_Res,
 	DeleteCharacter_Res,
-
+	StartGame_Res,
 
 
 
@@ -89,7 +89,14 @@ enum class PacketType : packet_type
 	// GameDB와 주고받는 타입
 	TestLogin_Rq = 50001,
 	CreateCharacter_Req,
-	DeleteCharacter_Req
+	DeleteCharacter_Req,
+	StartGame_Req,
+
+
+
+
+
+	Notice_Not = 65535
 };
 
 

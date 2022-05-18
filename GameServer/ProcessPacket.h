@@ -11,9 +11,9 @@ public:
 	CProcessPacket& operator=(CProcessPacket&&) = delete;
 
 	// 월드 TCP유틸리티
-	static void fnTCP_World_SendToCL_RecvBufferFromServer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);  // 서버에서 받은 버퍼를 CL로 그대로 보낸다
+	static void fnSendToWorldPlayer_RecvBufferFromServer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	// 지역 TCP유틸리티
-	static void fnTCP_AREA_SendToCL_RecvBufferFromServer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg); // 서버에서 받은 버퍼를 CL로 그대로 보낸다
+	static void fnSendToAreaPlayer_RecvBufferFromServer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	// 서버 유틸리티
 	static void fnSendToNS_RecvBufferFromClient(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);      // 클라이언트에서 받은 버퍼를 NPC서버에 그대로 보낸다
 	static void fnSendToDA_RecvBufferFromClient(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);      // 클라이언트에서 받은 버퍼를 DA에 그대로 보낸다
@@ -27,8 +27,8 @@ public:
 	static void fnStartLobby_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnCreateCharacter_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnDeleteCharacter_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
-	
-	
+	static void fnStartGame_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+
 
 
 
@@ -57,7 +57,4 @@ public:
 	static void fnKeepAliveCn(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 
 	static void fnStartLobby_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
-	
-
-	static void TestLogin_Rq(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 };

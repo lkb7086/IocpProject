@@ -180,8 +180,10 @@ bool CIocpLoginServer::ServerStart()
 	CIocpServer::ServerStart(InitConfig);
 	ConnectionManager()->CreateConnection(InitConfig, MAX_USER_COUNT);
 	DatabaseManager();
-	//m_pTickThread->CreateThread(INFINITE);
-	//m_pTickThread->Run();
+	
+	//m_pTickThread->SetTickThreadType(TickThreadType::Common);
+	m_pTickThread->CreateThread(UPDATE_TICK);
+	m_pTickThread->Run();
 
 	LOG(LOG_INFO_LOW, "Port: %u", InitConfig.nServerPort);
 	LOG(LOG_INFO_LOW, "LoginServer Start");

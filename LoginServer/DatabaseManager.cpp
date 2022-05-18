@@ -244,11 +244,8 @@ void CDatabaseManager::LogoutPlayerID_Not(char* pRecvedMsg)
 	char szID[MAX_ID_LENGTH]; memset(szID, 0, sizeof(szID));
 	m_pSerializer->StartDeserialize(pRecvedMsg);
 	m_pSerializer->Deserialize(szID, sizeof(szID));
-
-	if (FindID(szID))
-	{
-		EraseID(szID);
-	}
+	
+	EraseID(szID);
 }
 
 
