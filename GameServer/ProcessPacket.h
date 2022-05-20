@@ -56,5 +56,6 @@ public:
 	// 좀비체크
 	static void fnKeepAliveCn(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 
+	static void fnServerTestPacket(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnStartLobby_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 };

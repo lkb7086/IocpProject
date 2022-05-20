@@ -111,7 +111,6 @@ void CProcessPacket::CL_GS_MovePlayer(CPlayer* _pPlayer, DWORD dwSize, char* _pR
 {
 	//if (false == pPlayer->GetIsConfirm()) return; // UDP테스트중에는 닫는다
 
-
 //#ifndef _DEBUG
 	AreaManager()->Send_MovePlayerToActiveAreas(_pPlayer, _pRecvedMsg);
 //#endif
@@ -142,14 +141,6 @@ void CProcessPacket::CL_GS_NPCAttackToPlayer(CPlayer* pPlayer, DWORD dwSize, cha
 
 void CProcessPacket::fnKeepAliveCn(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
-	bool isAuto = false;
-	tls_pSer->StartDeserialize(pRecvedMsg);
-	tls_pSer->GetStream(&isAuto, sizeof(bool));
-
-	pPlayer->m_bIsAutoAttack = isAuto;
-	if (!pPlayer->m_bIsAutoAttack)
-		pPlayer->SetAuto_TargetNPCKey(0xFFFFFFFF);
-
 	pPlayer->SetKeepAliveTick(IocpGameServer()->GetServerTick());
 
 	//printf("%d ", pPlayer->m_bIsAutoAttack);
@@ -214,6 +205,13 @@ void CProcessPacket::CL_GS_CL_CureDeadPlayer(CPlayer* pPlayer, DWORD dwSize, cha
 void CProcessPacket::CL_GS_CL_Chat(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	PlayerManager()->Send_TCP_RecvBufferFromServer(pRecvedMsg, dwSize);
+}
+
+void CProcessPacket::fnServerTestPacket(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+{
+	PlayerManager()->AddPlayer(pPlayer);
+
+	//PlayerManager()->Send_TCP_RecvBufferFromServer(pRecvedMsg, dwSize);
 }
 
 void CProcessPacket::fnStartLobby_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)

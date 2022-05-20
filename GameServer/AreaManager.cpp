@@ -49,7 +49,7 @@ bool CAreaManager::AddPlayerToArea(CPlayer* pPlayer, int byArea)
 		return false;
 	}
 
-	//CMonitorSRW::OwnerSRW lock(m_srwArea[nZone], LockExclusive);
+	CMonitorSRW::OwnerSRW lock(m_srwArea, LockExclusive);
 
 	auto area_it = m_mapArea[byArea].find(pPlayer);
 	if (area_it != m_mapArea[byArea].end())
@@ -71,7 +71,7 @@ bool CAreaManager::RemovePlayerFromArea(CPlayer* pPlayer, int byArea)
 		return false;
 	}
 
-	//CMonitorSRW::OwnerSRW lock(m_srwArea[nZone], LockExclusive);
+	CMonitorSRW::OwnerSRW lock(m_srwArea, LockExclusive);
 
 	auto area_it = m_mapArea[byArea].find(pPlayer);
 	if (area_it == m_mapArea[byArea].end())
@@ -497,15 +497,16 @@ void CAreaManager::Send_UpdateAreaForDeleteObject(CPlayer* pPlayer)
 
 void CAreaManager::Send_MovePlayerToActiveAreas(CPlayer* pPlayer, char *pRecvedMsg)
 {
+	/*
 	if (false == pPlayer->GetIsConfirm())
 		return;
 	MovePlayer_Cn* pMove = (MovePlayer_Cn*)pRecvedMsg;
 	pPlayer->m_pos.x = pMove->x;
 	pPlayer->m_pos.y = pMove->y;
 	pPlayer->m_pos.z = pMove->z;
+	*/
 
-
-	//CMonitorSRW::OwnerSRW lock(m_srwArea[nZone], LockShared);
+	CMonitorSRW::OwnerSRW lock(m_srwArea, LockShared);
 
 	int* pActiveAreas = pPlayer->GetActiveAreas();
 	for (int i = 0; i < MAX_ACTIVE_AREAS; i++)

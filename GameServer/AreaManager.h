@@ -65,6 +65,8 @@ public:
 
 	void DoUpdateArea_ZonePlayers()
 	{
+		CMonitorSRW::OwnerSRW lock(m_srwArea, LockExclusive);
+
 		for (size_t i = 0; i < MAX_AREA; i++)
 		{
 			for (auto it = m_mapArea[i].begin(); m_mapArea[i].end() != it;)

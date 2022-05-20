@@ -50,6 +50,7 @@ bool CThread::CreateThread(DWORD dwWaitTick)
 		return false;
 	}
 
+	SetThreadPriority(m_hThread, THREAD_PRIORITY_TIME_CRITICAL);
 	//m_dwWaitTick = dwWaitTick;
 	return true;
 }

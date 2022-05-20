@@ -44,6 +44,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//OnCreateNpc();
 	IocpGameServer()->GameServerStart();
 	IocpGameServer()->ConnectToLoginServer();
+	//IocpGameServer()->ConnectToNoSQLServer();
 	//////////////////////////////////////////////////////////////////////////
 
 	/*

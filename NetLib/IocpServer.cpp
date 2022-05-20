@@ -317,7 +317,8 @@ bool CIocpServer::CreateProcessThreads()
 		m_hProcessThread[dwCount] = hThread;
 		ResumeThread(hThread);
 
-		SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL);
+		if(!m_isGameServer)
+			SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL);
 	}
 	return true;
 }

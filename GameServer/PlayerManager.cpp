@@ -39,7 +39,7 @@ bool CPlayerManager::AddPlayer(CPlayer* pPlayer)
 	auto player_it = m_mapPlayer.find(pPlayer->GetKey());
 	if (player_it != m_mapPlayer.end())
 	{
-		LOG(LOG_ERROR_NORMAL, "SYSTEM | CPlayerManager::AddPlayer() | PKey(%d)는 이미 m_mapPlayer에 있습니다.", pPlayer->GetKey());
+		//LOG(LOG_ERROR_NORMAL, "SYSTEM | CPlayerManager::AddPlayer() | PKey(%d)는 이미 m_mapPlayer에 있습니다.", pPlayer->GetKey());
 		return false;
 	}
 	pPlayer->SetPKey(GeneratePrivateKey());

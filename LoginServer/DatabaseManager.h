@@ -26,16 +26,12 @@ public:
 	void MySql_QuickUpdate();
 	// DBÇÔ¼ö
 
-	void ConfirmID_Rq(CConnection* pConnection, char* pRecvedMsg);
+	void ConfirmID_Req(CConnection* pConnection, char* pRecvedMsg);
 	void JoinID_Req(CConnection* pConnection, char* pRecvedMsg);
 	void ConfirmIDGameServer_Res(char* pMsg);
 	void LogoutPlayerID_Not(char* pRecvedMsg);
 
 
-	void DB_ConfirmID_Rq(CConnection* pConnection, char* pRecvedMsg);
-	void DB_SelectUnit_Rq(CConnection* pConnection, char* pRecvedMsg);
-	//void DB_CreateUnit(CConnection* pConnection, char* pRecvedMsg);
-	//void DB_DeleteUnit(CConnection* pConnection, char* pRecvedMsg);
 	void Recv_LogoutPlayer_Cn(CConnection* pConnection, char* pRecvedMsg)
 	{
 		char szID[MAX_ID_LENGTH]; memset(szID, 0x00, sizeof(szID));

@@ -86,6 +86,9 @@ enum class PacketType : packet_type
 	StartLobby_Not,
 	LogoutPlayerID_Not,
 
+	ServerTestPacket = 40000,
+	Notice_Not = 40001,
+
 	// GameDB와 주고받는 타입
 	TestLogin_Rq = 50001,
 	CreateCharacter_Req,
@@ -94,9 +97,6 @@ enum class PacketType : packet_type
 
 
 
-
-
-	Notice_Not = 65535
 };
 
 

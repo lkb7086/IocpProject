@@ -53,6 +53,7 @@ void CTickThread::OnProcess()
 			PacketInfo* pInfo = m_queuePacketQ.Pop();
 			if (nullptr == pInfo)
 			{
+				printf("null ");
 				YieldProcessor();
 				continue;
 			}
@@ -72,6 +73,7 @@ void CTickThread::OnProcess()
 
 			memset(pInfo, 0, sizeof(PacketInfo));
 			m_stackPacketS.Push(pInfo);
+			printf("%d ", m_queuePacketQ.GetSize());
 		} // while
 
 

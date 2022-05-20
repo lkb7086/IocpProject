@@ -101,7 +101,7 @@ void CIocpGameServer::InitProcessFunc()
 
 
 
-
+	mapPakect.insert(PACKET_PAIR(PacketType::ServerTestPacket, CProcessPacket::fnServerTestPacket));
 	mapPakect.insert(PACKET_PAIR(PacketType::Notice_Not, CProcessPacket::fnSendToWorldPlayer_RecvBufferFromServer));
 }
 
@@ -152,7 +152,7 @@ bool CIocpGameServer::GameServerStart()
 	GetSystemInfo(&sysInfo);
 
 	// 임시
-	initConfig.nProcessPacketCnt = MAX_USER_COUNT * 3;
+	initConfig.nProcessPacketCnt = MAX_USER_COUNT * 10;
 	initConfig.nSendBufCnt = 20;
 	initConfig.nRecvBufCnt = 10;
 	initConfig.nSendBufSize = 4096;
@@ -174,7 +174,6 @@ bool CIocpGameServer::GameServerStart()
 	m_pTickThread->CreateThread(UPDATE_TICK);
 	m_pTickThread->Run();
 
-	
 
 	//LOG(LOG_INFO_NORMAL, "로그 시스템 시작 | ====================================================================== ");
 	//LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::ServerStart() | [Base_Queue] Process Pakcet 개수 : %d", initConfig.nProcessPacketCnt);
@@ -354,10 +353,13 @@ bool CIocpGameServer::OnRecvImmediately(CConnection* lpConnection, DWORD dwSize,
 	{
 		//CalcXor(pRecvedMsg, 0, dwSize);
 	}
+
 	packet_type packetType;
 	CopyMemory(&packetType, pRecvedMsg + PACKET_SIZE_LENGTH, PACKET_TYPE_LENGTH);
 
-	if(packetType > 50000)
+	if (packetType == static_cast<packet_type>(PacketType::CL_GS_MovePlayer))
+		CProcessPacket::CL_GS_MovePlayer(static_cast<CPlayer*>(lpConnection), dwSize, pRecvedMsg);
+	else if(packetType > 50000)
 		DatabaseManager()->PushDBQueue((CPlayer*)lpConnection, dwSize, pRecvedMsg);
 	else
 		m_pTickThread->Enqueue_PacketQ((CPlayer*)lpConnection, dwSize, pRecvedMsg);

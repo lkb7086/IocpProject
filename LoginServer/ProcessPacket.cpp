@@ -11,7 +11,7 @@ CProcessPacket::~CProcessPacket()
 
 void CProcessPacket::fnConfirmID_Req(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
 {
-	DatabaseManager()->ConfirmID_Rq(pConn, pRecvedMsg);
+	DatabaseManager()->ConfirmID_Req(pConn, pRecvedMsg);
 }
 
 void CProcessPacket::fnConfirmIDGameServer_Res(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
@@ -35,10 +35,6 @@ void CProcessPacket::LogoutPlayerID_Not(CConnection* pConn, DWORD dwSize, char* 
 
 
 
-void CProcessPacket::fnSelectUnit_Rq(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
-{
-	DatabaseManager()->DB_SelectUnit_Rq(pConn, pRecvedMsg);
-}
 
 void CProcessPacket::fnSelectUnit_Aq(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
 {
