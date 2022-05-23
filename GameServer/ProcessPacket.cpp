@@ -134,11 +134,6 @@ void CProcessPacket::CL_GS_PlayerAttackToNPC(CPlayer* pPlayer, DWORD dwSize, cha
 	NPCManager()->SuccessAttackToNPC_Cn(pPlayer, pRecvedMsg);
 }
 
-void CProcessPacket::CL_GS_NPCAttackToPlayer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
-{
-	AreaManager()->Send_SuccessNPCAttackToPlayer_Aq(pPlayer, pRecvedMsg);
-}
-
 void CProcessPacket::fnKeepAliveCn(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	pPlayer->SetKeepAliveTick(IocpGameServer()->GetServerTick());

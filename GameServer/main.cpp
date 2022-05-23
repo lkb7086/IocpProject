@@ -1,7 +1,7 @@
 #include "stdafx.h"
 //#pragma comment( lib, "NetLib.lib" )
 #define _CRT_SECURE_NO_WARNINGS
-HANDLE g_hMutex = NULL;
+//HANDLE g_hMutex = NULL;
 
 void OnCreateNpc();
 
@@ -13,6 +13,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	_snprintf_s(command, _countof(command), _TRUNCATE, "mode con: lines=%d cols=%d", lines, cols);
 	system(command); //Windows CMD 명령문을 실행하는 함수
 
+	/*
 	g_hMutex = CreateMutex(NULL, FALSE, _T("Mutex_GameServer"));
 	if (NULL == g_hMutex)
 		return 0;
@@ -22,6 +23,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		system("pause");
 		return 0;
 	}
+	*/
 
 	tls_pEngine = new(nothrow) std::mt19937_64((std::random_device())());
 	if (nullptr == tls_pEngine)

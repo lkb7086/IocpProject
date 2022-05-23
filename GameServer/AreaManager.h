@@ -80,38 +80,6 @@ public:
 
 	void DetectPlayerFromNPC(CNPC* pDetectNPC);
 
-	void Send_PlayerAttackEffect(CPlayer* pPlayer, unsigned int npcKey, unsigned short damage, Vector3 rot, bool isPlayer)
-	{
-		CSerializer& ser = *tls_pSer;
-		ser.StartSerialize();
-		ser.Serialize(static_cast<packet_type>(PacketType::GS_CL_PlayerAttackEffect));
-		ser.SetStream(&isPlayer, sizeof(bool));
-		ser.Serialize(pPlayer->GetKey());
-		ser.Serialize(npcKey);
-		ser.Serialize(damage);
-		ser.Serialize(rot.x);
-		ser.Serialize(rot.y);
-		ser.Serialize(rot.z);
-
-		int* pActiveAreas = pPlayer->GetActiveAreas();
-		for (int i = 0; i < MAX_ACTIVE_AREAS; i++)
-		{
-			int activeArea = pActiveAreas[i];
-			if (0 > activeArea || activeArea >= MAX_AREA)
-				continue;
-			for (auto it = m_mapArea[activeArea].begin(); it != m_mapArea[activeArea].end(); ++it)
-			{
-				CPlayer* pAreaPlayer = (CPlayer*)*it;
-				if (nullptr == pAreaPlayer || pPlayer == pAreaPlayer)
-					continue;
-				char* pBuffer = pAreaPlayer->PrepareSendPacket(ser.GetCurBufSize());
-				if (nullptr == pBuffer)
-					continue;
-				ser.CopyBuffer(pBuffer);
-				pAreaPlayer->SendPost(ser.GetCurBufSize());
-			}
-		}
-	}
 
 	void Send_UpdateNPC_VSn();
 
@@ -120,12 +88,9 @@ public:
 	void Send_UpdateAreaForDeleteObject(CPlayer* pPlayer);
 	// 이동
 	void Send_MovePlayerToActiveAreas(CPlayer *pPlayer, char *pRecvedMsg);
-	// 공격
-	void Send_SuccessNPCAttackToPlayer_Aq(CPlayer *pPlayer, char *pRecvedMsg); //
 
 private:
 	CMonitorSRW		m_srwArea;
-	CMonitorSRW		m_srwNPCArea;
 	
 	vector<int>     m_vecNewActiveArea;
 	vector<unsigned int>     m_vecDeleteArea;

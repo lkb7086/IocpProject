@@ -132,23 +132,19 @@ void CIocpLoginServer::OnClose(CConnection* lpConnection)
 {
 	if (nullptr == lpConnection)
 		return;
-	//assert(lpConnection->m_bIsCilent); // 릴리즈에서는 무시됨
-	//exit(0);
-	if (!lpConnection->m_bIsCilent)
-	{ 
-		puts("게임서버 종료");
-		lpConnection->m_bIsCilent = true;
-		//exit(0);
-		//system("pause");
-		return;
-	}
-	
+
 	ConnectionManager()->RemoveConnection(lpConnection);
 
+	if (!lpConnection->m_bIsCilent)
+	{ 
+		//puts("게임서버 종료");
+		ConnectionManager()->RemoveServerCon(lpConnection);
+		lpConnection->m_bIsCilent = true;
+	}
+	
 	((CPlayer*)lpConnection)->Init();
 
-	LOG(LOG_INFO_LOW, "SYSTEM | CIocpLoginServer::OnClose() | Socket[%u] 종료 ConnectionCnt %d",
-		lpConnection->GetSocket(), ConnectionManager()->GetConnectionCnt());
+	LOG(LOG_INFO_LOW, "SYSTEM | CIocpLoginServer::OnClose() | 종료 ConnectionCnt %d", ConnectionManager()->GetConnectionCnt());
 }
 
 bool CIocpLoginServer::OnSystemMsg(CConnection* lpConnection, LPARAM msgType, WPARAM wParam)

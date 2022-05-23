@@ -72,5 +72,7 @@ void CProcessPacket::fnImServer_Not(CConnection* pConn, DWORD dwSize, char* pRec
 {
 	pConn->m_bIsCilent = false;
 	ConnectionManager()->SetServerConn(pConn);
+	((CPlayer*)pConn)->m_serverID = ((stUtil_Char*)pRecvedMsg)->nChar;
+	ConnectionManager()->AddServerCon(((stUtil_Char*)pRecvedMsg)->nChar, pConn);
 }
 

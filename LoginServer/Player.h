@@ -14,6 +14,7 @@ public:
 		m_nLSKey = 0xffffffff;
 		m_bIsNotSelectedUnit = true;
 		m_nTime = 2;
+		m_serverID = -1;
 	}
 
 	inline char* GetID() { return m_szID; }
@@ -29,7 +30,7 @@ public:
 
 	bool m_bIsNotSelectedUnit; // 캐릭터를 선택하지 않고 그냥 나갔으면 true
 	char m_nTime;
-
+	char m_serverID;
 private:
 	char	m_szID[MAX_ID_LENGTH];
 	bool    m_isConfirm;

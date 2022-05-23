@@ -113,6 +113,8 @@ struct PacketHeader
 
 // 유틸리티
 struct stUtil_Empty : PacketHeader {};
+struct stUtil_Char : PacketHeader { unsigned char nChar; };
+struct stUtil_UChar : PacketHeader { unsigned short nUChar; };
 struct stUtil_UShort : PacketHeader { unsigned short nUShort; };
 struct stUtil_Integer : PacketHeader { int nInteger; };
 struct stUtil_UInteger : PacketHeader { unsigned int nUInteger; };

@@ -72,7 +72,7 @@ void CDatabaseManager::ConfirmID_Req(CConnection* pConnection, char* pRecvedMsg)
 	const string& hash2 = hash.sha512(szPass);
 
 	char query[256]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "select id from user where id = '%s' and pass = '%s'", szID, hash2.c_str());
+	_snprintf_s(query, _countof(query), _TRUNCATE, "select * from user where id = '%s' and pass = '%s'", szID, hash2.c_str());
 
 	int	state = -1;
 	state = mysql_query(m_pConnection, query);
@@ -106,13 +106,20 @@ void CDatabaseManager::ConfirmID_Req(CConnection* pConnection, char* pRecvedMsg)
 
 	if (result == 0)
 	{
+		MYSQL_ROW row = mysql_fetch_row(pResult);
+		if (row == nullptr)
+			return;
+		((CPlayer*)pConnection)->m_serverID = (char)atoi(row[3]);
+		//((CPlayer*)pConnection)->m_serverID = 0;
+
+
 		m_pSerializer->StartSerialize();
 		m_pSerializer->Serialize(static_cast<packet_type>(PacketType::ConfirmIDGameServer_Req));
 		m_pSerializer->Serialize(result);
 		m_pSerializer->Serialize(((CPlayer*)pConnection)->GetLSKey());
 		m_pSerializer->Serialize(szID);
 
-		CConnection* pGameSerserConection = ConnectionManager()->GetServerConn();
+		CConnection* pGameSerserConection = ConnectionManager()->GetServerConn(((CPlayer*)pConnection)->m_serverID);
 		if (nullptr == pGameSerserConection)
 			return;
 		char* pBuffer = pGameSerserConection->PrepareSendPacket(m_pSerializer->GetCurBufSize());
@@ -157,6 +164,10 @@ void CDatabaseManager::JoinID_Req(CConnection* pConnection, char* pRecvedMsg)
 	m_pSerializer->StartDeserialize(pRecvedMsg);
 	m_pSerializer->Deserialize(szID, sizeof(szID));
 	m_pSerializer->Deserialize(szPass, sizeof(szPass));
+
+	// 빈 문자열이면
+	if (strcmp(szID, "") == 0)
+		return;
 
 	// sql인젝션 특수문자 들어가있으면
 	char* pSearch = strchr(szID, ';');
@@ -233,6 +244,7 @@ void CDatabaseManager::ConfirmIDGameServer_Res(char* pMsg)
 	m_pSerializer->Serialize(result);
 	m_pSerializer->Serialize(key);
 	m_pSerializer->Serialize(szID);
+	m_pSerializer->Serialize(((CPlayer*)con)->m_serverID);
 	char* pBuf = con->PrepareSendPacket(m_pSerializer->GetCurBufSize());
 	if (nullptr == pBuf)
 		return;
@@ -244,10 +256,23 @@ void CDatabaseManager::ConfirmIDGameServer_Res(char* pMsg)
 void CDatabaseManager::LogoutPlayerID_Not(char* pRecvedMsg)
 {
 	char szID[MAX_ID_LENGTH]; memset(szID, 0, sizeof(szID));
+	char serverID = -1;
 	m_pSerializer->StartDeserialize(pRecvedMsg);
 	m_pSerializer->Deserialize(szID, sizeof(szID));
+	m_pSerializer->Deserialize(serverID);
 	
 	EraseID(szID);
+
+	char query[256]; memset(query, 0, sizeof(query));
+	_snprintf_s(query, _countof(query), _TRUNCATE, "UPDATE user SET serverid = %d WHERE id = '%s'", serverID, szID);
+
+	int	state = -1;
+	state = mysql_query(m_pConnection, query);
+	if (0 != state)
+	{
+		LOG(LOG_INFO_LOW, "SYSTEM | CDatabaseManager::LogoutPlayerID_Not() | mysql_query() 에러: %s", mysql_error(m_pConnection));
+		return;
+	}
 }
 
 

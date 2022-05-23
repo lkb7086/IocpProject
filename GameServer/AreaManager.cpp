@@ -538,56 +538,6 @@ void CAreaManager::Send_MovePlayerToActiveAreas(CPlayer* pPlayer, char *pRecvedM
 	}
 }
 
-void CAreaManager::Send_SuccessNPCAttackToPlayer_Aq(CPlayer* pPlayer, char* pRecvedMsg)
-{
-	// 공격받은 player
-	CPlayer* pInjuredPlayer = pPlayer;
-	if (pInjuredPlayer->m_isDead)
-		return;
-	// 공격하는 npc
-	unsigned int attackingNPCKey = ((stUtil_UInteger*)pRecvedMsg)->nUInteger;
-	CNPC* pAttackingNPC = NPCManager()->FindNpc(attackingNPCKey);
-	if (nullptr == pAttackingNPC)
-		return;
-	// 플레이어 체력감소
-	pInjuredPlayer->SetHP(pInjuredPlayer->GetHP() - pAttackingNPC->m_damage);
-
-	if (0 >= pInjuredPlayer->GetHP()) // 플레이어가 공격받고 죽었으면
-	{
-		pInjuredPlayer->m_isDead = true;
-
-		PlayerManager()->GS_CL_PlayerDead(pPlayer);
-	}
-	else
-	{
-		// 감염공격
-		if (pAttackingNPC->GetNPC_Code() == NPC_Code::SLIDER || pAttackingNPC->GetNPC_Code() == NPC_Code::SPIDER ||
-			CMTRand::GetBernoulliDist(0.1f))
-		{
-			CSerializer& ser = *tls_pSer;
-			ser.StartSerialize();
-			ser.Serialize(static_cast<packet_type>(PacketType::GS_CL_PlayerInfection));
-			char* buf = pInjuredPlayer->PrepareSendPacket(ser.GetCurBufSize());
-			if (nullptr == buf)
-				return;
-			ser.CopyBuffer(buf);
-			pInjuredPlayer->SendPost(ser.GetCurBufSize());
-
-			pInjuredPlayer->m_isInfection = true;
-		}
-	}
-
-	CSerializer& ser = *tls_pSer;
-	ser.StartSerialize();
-	ser.Serialize(static_cast<packet_type>(PacketType::GS_CL_PlayerHP));
-	ser.Serialize(pInjuredPlayer->GetHP());
-	ser.Serialize((char)false);
-	char* buf = pInjuredPlayer->PrepareSendPacket(ser.GetCurBufSize());
-	if (nullptr == buf)
-		return;
-	ser.CopyBuffer(buf);
-	pInjuredPlayer->SendPost(ser.GetCurBufSize());
-}
 
 void CAreaManager::DetectPlayerFromNPC(CNPC* pDetectNPC)
 {

@@ -3,8 +3,7 @@
 #include "ProcessPacket.h"
 
 #define BASE_SERVER _T("BASE_SERVER")
-#define CONNECT_NPCSERVER "CONNECT_NPCSERVER"
-#define INIFILE_NAME _T(".\\GameServer.ini")
+#define INIFILE_NAME _T(".//GameServer.ini")
 
 IMPLEMENT_SINGLETON(CIocpGameServer);
 
@@ -32,6 +31,7 @@ CIocpGameServer::CIocpGameServer() : m_pNpcServerConn(nullptr), m_pDbAgentConn(n
 	m_dayAndNightTime = 0;
 	m_hostCount = 0;
 	InitProcessFunc();
+	m_serverID = -1;
 
 	m_ringBuffer.Create(10240);
 }
@@ -107,10 +107,10 @@ void CIocpGameServer::InitProcessFunc()
 
 bool CIocpGameServer::GameServerStart()
 {
-	/*
-	if (-1 == GetINIString(m_szLogFileName, BASE_SERVER, _T("LOGFILE"), 100, INIFILE_NAME))
-	return false;
-	*/
+	///*
+	//if (-1 == GetINIString(m_szLogFileName, BASE_SERVER, _T("LOGFILE"), 100, INIFILE_NAME))
+	//return false;
+	//*/
 	// 임시
 	_tcsncpy_s(m_szLogFileName, _countof(m_szLogFileName), _T("GameServer"), _TRUNCATE);
 
@@ -128,26 +128,15 @@ bool CIocpGameServer::GameServerStart()
 	INITCONFIG initConfig;
 	int nMaxConnectionCnt = 0;
 
-	/*
-	if( -1 == ( initConfig.nProcessPacketCnt = GetINIInt( BASE_SERVER  , "PROCESS_PACKET_CNT"  , INIFILE_NAME ) ) )
-	return false;
-	if( -1 == ( initConfig.nSendBufCnt = GetINIInt( BASE_SERVER  , "SEND_BUFFER_CNT"  , INIFILE_NAME ) ) )
-	return false;
-	if( -1 == ( initConfig.nRecvBufCnt = GetINIInt( BASE_SERVER  , "RECV_BUFFER_CNT"  , INIFILE_NAME ) ) )
-	return false;
-	if( -1 == ( initConfig.nSendBufSize = GetINIInt( BASE_SERVER  , "SEND_BUFFER_SIZE"  , INIFILE_NAME ) ) )
-	return false;
-	if( -1 == ( initConfig.nRecvBufSize = GetINIInt( BASE_SERVER  , "RECV_BUFFER_SIZE"  , INIFILE_NAME ) ) )
-	return false;
-	if( -1 == ( initConfig.nServerPort = GetINIInt( BASE_SERVER  , "SERVER_PORT"  , INIFILE_NAME ) ) )
-	return false;
-	if( -1 == ( nMaxConnectionCnt = GetINIInt( BASE_SERVER  , "MAX_CONNECTION_CNT"  , INIFILE_NAME ) ) )
-	return false;
-	if( -1 == ( initConfig.nWorkerThreadCnt = GetINIInt( BASE_SERVER  , "WORKER_THREAD"  , INIFILE_NAME ) ) )
-	return false;
-	if( -1 == ( initConfig.nProcessThreadCnt = GetINIInt( BASE_SERVER  , "PROCESS_THREAD"  , INIFILE_NAME ) ) )
-	return false;
-	*/
+
+
+	if (-1 == (initConfig.nServerPort = GetINIInt(BASE_SERVER, _T("SERVER_PORT"), INIFILE_NAME)))
+		return false;
+	if (-1 == (m_serverID = GetINIInt(BASE_SERVER, _T("SERVER_ID"), INIFILE_NAME)))
+		return false;
+	
+
+
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
 
@@ -157,7 +146,7 @@ bool CIocpGameServer::GameServerStart()
 	initConfig.nRecvBufCnt = 10;
 	initConfig.nSendBufSize = 4096;
 	initConfig.nRecvBufSize = 4096;
-	initConfig.nServerPort = 59080;
+	//initConfig.nServerPort = 59080;
 	nMaxConnectionCnt = MAX_USER_COUNT;
 	initConfig.nWorkerThreadCnt = (4 * 2) + 1;
 	initConfig.nProcessThreadCnt = 1;
@@ -175,19 +164,8 @@ bool CIocpGameServer::GameServerStart()
 	m_pTickThread->Run();
 
 
-	//LOG(LOG_INFO_NORMAL, "로그 시스템 시작 | ====================================================================== ");
-	//LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::ServerStart() | [Base_Queue] Process Pakcet 개수 : %d", initConfig.nProcessPacketCnt);
-	//LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::ServerStart() | [Base_Buffer] Send Buffer 개수 : %d ", initConfig.nSendBufCnt);
-	//LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::ServerStart() | [Base_Buffer] Recv Buffer 개수 : %d ", initConfig.nRecvBufCnt);
-	//LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::ServerStart() | [Base_Buffer] Send Buffer 크기 : %d ", initConfig.nSendBufSize);
-	//LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::ServerStart() | [Base_Buffer] Recv Buffer 크기 : %d ", initConfig.nRecvBufSize);
-	//LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::ServerStart() | [Base_Buffer] Send 총 할당 버퍼: %d ", initConfig.nSendBufSize * initConfig.nSendBufCnt);
-	//LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::ServerStart() | [Base_Buffer] Recv 총 할당 버퍼: %d ", initConfig.nRecvBufSize * initConfig.nRecvBufCnt);
-	//LOG(LOG_INFO_NORMAL, "CIocpGameServer::ServerStart() | [Base_Connection] 접속할 수 있는 최대 수 : %d", nMaxConnectionCnt);
-	//LOG(LOG_INFO_NORMAL, "CIocpGameServer::ServerStart() | [Base_Connection] Server Binding Port : %d", initConfig.nServerPort);
-	//LOG(LOG_INFO_NORMAL, "CIocpGameServer::ServerStart() | [Base_Thread] WorkerThread Cnt : %d", initConfig.nWorkerThreadCnt);
-	//LOG(LOG_INFO_NORMAL, "CIocpGameServer::ServerStart() | [Base_Thread] Process WorkerThread Cnt : %d", initConfig.nProcessThreadCnt);
-	//LOG(LOG_INFO_NORMAL, "CIocpGameServer::ServerStart() | -GameServer Start-");
+
+
 
 	char name[32]; memset(name, 0, sizeof(name));
 	char* ip = nullptr;
@@ -200,9 +178,10 @@ bool CIocpGameServer::GameServerStart()
 		}
 	}
 
-	printf("My IP: %s\n", ip);
-	puts("My Port: 59080");
-	puts("Maximum number of connections: 1000");
+	printf("IP: %s\n", ip);
+	printf("Port: %d\n", initConfig.nServerPort);
+	printf("Server ID: %d\n", m_serverID);
+	printf("Maximum number of connections: %d\n", nMaxConnectionCnt);
 	puts("GameServer Start");
 	puts("");
 
@@ -399,6 +378,7 @@ void CIocpGameServer::OnClose(CConnection* lpConnection)
 	tls_pSer->StartSerialize();
 	tls_pSer->Serialize(static_cast<packet_type>(PacketType::LogoutPlayerID_Not));
 	tls_pSer->Serialize(pPlayer->GetID());
+	tls_pSer->Serialize(m_serverID);
 	
 	CConnection* pLoginConn = GetLoginServerConn();
 	char* pSendBuffer = pLoginConn->PrepareSendPacket(tls_pSer->GetCurBufSize());
@@ -500,8 +480,7 @@ int CIocpGameServer::GetINIString(TCHAR* szOutStr, TCHAR* szAppName, TCHAR* szKe
 	if (0 == ret)
 	{
 		TCHAR szTemp[300];
-		_sntprintf_s(szTemp, _countof(szTemp), _TRUNCATE, _T("[%s]Config File에 [%s]-[%s]항목은 존재하지 않습니다."),
-			szFileName, szAppName, szKey);
+		_sntprintf_s(szTemp, _countof(szTemp), _TRUNCATE, _T("[%s]Config File에 [%s]-[%s]항목은 존재하지 않습니다."), szFileName, szAppName, szKey);
 		return -1;
 	}
 	return 0;
@@ -513,8 +492,7 @@ int	CIocpGameServer::GetINIInt(TCHAR* szAppName, TCHAR* szKey, TCHAR* szFileName
 	if (ret < 0)
 	{
 		TCHAR szTemp[300];
-		_sntprintf_s(szTemp, _countof(szTemp), _TRUNCATE, _T("[%s]Config File에 [%s]-[%s]항목은 존재하지 않습니다."),
-			szFileName, szAppName, szKey);
+		_sntprintf_s(szTemp, _countof(szTemp), _TRUNCATE, _T("[%s]Config File에 [%s]-[%s]항목은 존재하지 않습니다."), szFileName, szAppName, szKey);
 	}
 	return ret;
 }
@@ -655,11 +633,12 @@ bool CIocpGameServer::ConnectToLoginServer()
 		, m_pLoginServerConn->GetSocket());
 
 
-	stUtil_Empty* pBuffer = (stUtil_Empty*)m_pLoginServerConn->PrepareSendPacket(sizeof(stUtil_Empty));
+	stUtil_Char* pBuffer = (stUtil_Char*)m_pLoginServerConn->PrepareSendPacket(sizeof(stUtil_Char));
 	if (nullptr == pBuffer)
 		return false;
 	pBuffer->type = (packet_type)PacketType::ImServer_Not;
-	m_pLoginServerConn->SendPost(sizeof(stUtil_Empty));
+	pBuffer->nChar = m_serverID;
+	m_pLoginServerConn->SendPost(sizeof(stUtil_Char));
 
 	return true;
 }

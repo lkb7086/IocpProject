@@ -133,7 +133,7 @@ public:
 	CTickThread* m_pTickThread;
 private:
 	TCHAR				m_szLogFileName[MAX_LOGFILENAME_LENGTH];
-
+	char		m_serverID;
 	
 
 	CConnection*		m_pNpcServerConn;

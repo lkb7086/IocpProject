@@ -118,7 +118,9 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 			tls_pSer->Serialize(row[index++]);
 			tls_pSer->Serialize((char)atoi(row[index++]));
 			tls_pSer->Serialize((char)atoi(row[index++]));
-			tls_pSer->Serialize((char)atoi(row[index]));
+			tls_pSer->Serialize((char)atoi(row[index++]));
+			tls_pSer->Serialize((float)atof(row[index++]));
+			tls_pSer->Serialize((float)atof(row[index]));
 			row = mysql_fetch_row(pResult);
 			if (nullptr == row)
 				break;
@@ -142,12 +144,18 @@ void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 	char species = 0;
 	char gender = 0;
 	char result = 0;
+	float height = 0.0f;
+	float width = 0.0f;
 
 	tls_pSer->StartDeserialize(info.pMsg);
 	tls_pSer->Deserialize(name, sizeof(name));
 	tls_pSer->Deserialize(index);
 	tls_pSer->Deserialize(species);
 	tls_pSer->Deserialize(gender);
+	tls_pSer->Deserialize(height);
+	tls_pSer->Deserialize(width);
+
+
 
 	char query[128]; memset(query, 0, sizeof(query));
 	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT * FROM character WHERE name = '%s'", name);
@@ -178,7 +186,7 @@ void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 	{
 		// 캐릭터가 없으면 INSERT
 		memset(query, 0, sizeof(query));
-		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO character VALUES (NULL, '%s', '%s', %d, %d, %d)", info.pPlayer->GetID(), name, index, species, gender);
+		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO character VALUES (NULL, '%s', '%s', %d, %d, %d, %f, %f)", info.pPlayer->GetID(), name, index, species, gender, height, width);
 		state = mysql_query(m_pConnection, query);
 		if (0 != state)
 		{
@@ -191,6 +199,8 @@ void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 		tls_pSer->Serialize(index);
 		tls_pSer->Serialize(species);
 		tls_pSer->Serialize(gender);
+		tls_pSer->Serialize(height);
+		tls_pSer->Serialize(width);
 	}
 
 	char* pBuffer = info.pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());

@@ -216,7 +216,7 @@ void CNPCManager::SuccessAttackToNPC_Cn(CPlayer* pPlayer, char* pRecvedMsg)
 	ser.Deserialize(rotation.z);
 
 	// 일단 공격했다고 플레이어들에게 알린다
-	AreaManager()->Send_PlayerAttackEffect(pPlayer, pAttackedNPCKey, gunDamage, rotation, isPlayer);
+	//AreaManager()->Send_PlayerAttackEffect(pPlayer, pAttackedNPCKey, gunDamage, rotation, isPlayer);
 
 	auto it = m_mapNPC.find(pAttackedNPCKey);
 	if (m_mapNPC.end() == it)
