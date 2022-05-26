@@ -22,7 +22,7 @@ public:
 	int nKill;
 };
 
-struct stItem
+struct Item
 {
 	// 타입: 장비, 소모
 	unsigned long long nUid;
@@ -31,12 +31,28 @@ struct stItem
 	unsigned short nSlot;
 	bool isMerge;
 	unsigned char rank;
-	stItem() {
-		memset(this, 0, sizeof(stItem));
+	Item() {
+		memset(this, 0, sizeof(Item));
 	}
-	void Init() { memset(this, 0, sizeof(stItem));
+	void Init() { memset(this, 0, sizeof(Item));
 	}
 };
+
+struct Color
+{
+	float r; float g; float b; float a; char mode;
+
+	Color()
+	{
+		memset(this, 0, sizeof(Color));
+	}
+};
+
+
+
+
+
+
 
 class CPlayer final : public CConnection, CLifeObject
 {
@@ -73,7 +89,7 @@ public:
 
 	void InitInventory()
 	{
-		m_arrItem.fill(stItem());
+		m_arrItem.fill(Item());
 		m_nItemSlotsCnt = 0;
 	}
 
@@ -103,7 +119,7 @@ public:
 	inline char* GetID() { return m_szID; }
 	inline void	 SetID(char* szId) { strncpy_s(m_szID, _countof(m_szID), szId, _TRUNCATE); } // _TRUNCATE == MAX_ID_LENGTH - 1
 	inline char* GetNickName() { return m_szNickName; }
-	inline void	 SetNickName(char* szNickName) { strncpy_s(m_szNickName, _countof(m_szNickName), szNickName, _TRUNCATE); }
+	inline void	 SetNickName(const char* szNickName) { strncpy_s(m_szNickName, _countof(m_szNickName), szNickName, _TRUNCATE); }
 	inline int GetLevel() { return m_nLevel; } inline void SetLevel(int byLevel) { m_nLevel = byLevel; }
 	inline BYTE GetClass() { return m_nClass; } inline void SetClass(BYTE byClass) { m_nClass = byClass; }
 	inline int GetHP() { return m_nHP; }
@@ -114,7 +130,14 @@ public:
 	inline UINT GetAuto_TargetNPCKey() { return m_autoTargetedNPCKey; }
 	inline void SetAuto_TargetNPCKey(UINT _nNPCKey) { m_autoTargetedNPCKey= _nNPCKey; }
 
-	//GETSET(bool, IsDead, m_isDead);
+	GETSET(unsigned long long, UID, m_uid);
+	GETSET(char, CharacterIndex, m_characterIndex);
+	GETSET(char, Species, m_species);
+	GETSET(char, Gender, m_gender);
+	GETSET(char, Height, m_height);
+	GETSET(char, Width, m_width);
+	
+	
 
 	Node* m_pPrevMoveNode;
 	CNPC* m_pTargetNPC;
@@ -131,15 +154,23 @@ public:
 	unsigned int m_nUnit_UID;
 	unsigned char m_equipGun;
 	//stItem m_arrItem[MAX_INVEN_SLOT];
-	std::array<stItem, MAX_INVEN_SLOT> m_arrItem;
+	std::array<Item, MAX_INVEN_SLOT> m_arrItem;
 	bool m_isHost;
 	bool m_isInfection;
 
+	Color m_color;
 private:
 	UINT    m_autoTargetedNPCKey; // 오토사냥시 타겟된 npc키
 	unsigned __int32	m_key;
 	char	m_szID[MAX_ID_LENGTH];
 	char	m_szNickName[MAX_NICKNAME_LENGTH];
+	unsigned long long m_uid;
+	char m_characterIndex;
+	char m_species;
+	char m_gender;
+	float m_height;
+	float m_width;
+
 
 	BYTE	m_nClass;
 	int 	m_nLevel;

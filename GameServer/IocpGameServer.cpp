@@ -67,27 +67,21 @@ void CIocpGameServer::InitProcessFunc()
 	mapPakect.insert(PACKET_PAIR(PacketType::CreateCharacter_Req, CProcessPacket::fnCreateCharacter_Req));
 	mapPakect.insert(PACKET_PAIR(PacketType::DeleteCharacter_Req, CProcessPacket::fnDeleteCharacter_Req));
 	mapPakect.insert(PACKET_PAIR(PacketType::StartGame_Req, CProcessPacket::fnStartGame_Req));
-
-
-	//Notice_Req
-	// 로그인
-	mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_Login, CProcessPacket::CL_GS_Login));
-	// NPC초기화
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_CurNPCPosFromHost, CProcessPacket::CL_GS_CurNPCPosFromHost));
+	
 	// 이동
-	mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_MovePlayer, CProcessPacket::CL_GS_MovePlayer));
-	// 아이템
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_GetItem, CProcessPacket::CL_GS_GetItem));
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_DiscardItem, CProcessPacket::CL_GS_DiscardItem));
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_UseMedKit, CProcessPacket::CL_GS_UseMedKit));
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_UseVaccine, CProcessPacket::CL_GS_UseVaccine));
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_GetVictim, CProcessPacket::CL_GS_GetVictim));
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_EquipGun, CProcessPacket::CL_GS_EquipGun));
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_CL_CureDeadPlayer, CProcessPacket::CL_GS_CL_CureDeadPlayer));
-	// 공격
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_CL_PlayerAreaAttack, CProcessPacket::CL_GS_CL_PlayerAreaAttack));
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_PlayerAttackToNPC, CProcessPacket::CL_GS_PlayerAttackToNPC));
-	//mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_NPCAttackToPlayer, CProcessPacket::CL_GS_NPCAttackToPlayer));
+	mapPakect.insert(PACKET_PAIR(PacketType::MovePlayer_Req, CProcessPacket::fnMovePlayer_Req));
+	mapPakect.insert(PACKET_PAIR(PacketType::ChangeColor_Req, CProcessPacket::fnChangeColor_Req));
+
+	mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Req, CProcessPacket::fnMoveServer_Req));
+	mapPakect.insert(PACKET_PAIR(PacketType::PlayerInfoAndMoveLevel_Req, CProcessPacket::fnPlayerInfoAndMoveLevel_Req));
+	
+
+
+
+
+
+
+
 	// 채팅
 	mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_CL_Chat, CProcessPacket::CL_GS_CL_Chat));
 
@@ -95,10 +89,11 @@ void CIocpGameServer::InitProcessFunc()
 
 
 	mapPakect.insert(PACKET_PAIR(PacketType::StartLobby_Not, CProcessPacket::fnStartLobby_Not));
+	mapPakect.insert(PACKET_PAIR(PacketType::StartLogin_Not, CProcessPacket::fnStartLogin_Not));
+	mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Not1, CProcessPacket::fnMoveServer_Not1));
+	mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Not2, CProcessPacket::fnMoveServer_Not2));
 	
-
-
-
+	
 
 
 	mapPakect.insert(PACKET_PAIR(PacketType::ServerTestPacket, CProcessPacket::fnServerTestPacket));
@@ -213,7 +208,7 @@ void CIocpGameServer::OnClose_IocpServer()
 
 bool CIocpGameServer::OnAccept(CConnection* lpConnection)
 {
-	puts("OnAccept");
+	//puts("OnAccept");
 
 	
 
@@ -231,14 +226,14 @@ bool CIocpGameServer::OnAccept(CConnection* lpConnection)
 	}
 	m_setConn.insert(pair<int, CConnection*>(lpConnection->GetIndex(), lpConnection));
 
-
+	/*
 	// 로그인허락 패킷전송
 	stUtil_Empty* pBuffer = (stUtil_Empty*)lpConnection->PrepareSendPacket(sizeof(stUtil_Empty));
 	if (nullptr == pBuffer)
 		return false;
 	pBuffer->type = (packet_type)PacketType::Accept_Not;
 	lpConnection->SendPost(sizeof(stUtil_Empty));
-
+	*/
 
 	return true;
 }
@@ -336,8 +331,8 @@ bool CIocpGameServer::OnRecvImmediately(CConnection* lpConnection, DWORD dwSize,
 	packet_type packetType;
 	CopyMemory(&packetType, pRecvedMsg + PACKET_SIZE_LENGTH, PACKET_TYPE_LENGTH);
 
-	if (packetType == static_cast<packet_type>(PacketType::CL_GS_MovePlayer))
-		CProcessPacket::CL_GS_MovePlayer(static_cast<CPlayer*>(lpConnection), dwSize, pRecvedMsg);
+	if (packetType == static_cast<packet_type>(PacketType::MovePlayer_Req))
+		CProcessPacket::fnMovePlayer_Req(static_cast<CPlayer*>(lpConnection), dwSize, pRecvedMsg);
 	else if(packetType > 50000)
 		DatabaseManager()->PushDBQueue((CPlayer*)lpConnection, dwSize, pRecvedMsg);
 	else
@@ -373,7 +368,7 @@ void CIocpGameServer::OnClose(CConnection* lpConnection)
 		return;
 	}
 
-	puts("연결해제");
+	//puts("연결해제");
 
 	tls_pSer->StartSerialize();
 	tls_pSer->Serialize(static_cast<packet_type>(PacketType::LogoutPlayerID_Not));
@@ -393,7 +388,7 @@ void CIocpGameServer::OnClose(CConnection* lpConnection)
 	AreaManager()->RemovePlayerFromArea(pPlayer, pPlayer->GetArea());
 	PlayerManager()->RemovePlayer(pPlayer);
 
-	PlayerManager()->Send_LogoutPlayer(pPlayer);
+	//PlayerManager()->Send_LogoutPlayer(pPlayer);
 
 	LOG(LOG_INFO_LOW, "ID (%u) Disconnected. / Current Players (%u)",
 		pPlayer->GetKey(), PlayerManager()->GetPlayerCnt());

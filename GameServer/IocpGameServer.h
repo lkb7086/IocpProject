@@ -131,9 +131,9 @@ public:
 	unsigned long long m_secTick;
 	static HANDLE		m_hMainThreadEvent;
 	CTickThread* m_pTickThread;
+	char		m_serverID;
 private:
 	TCHAR				m_szLogFileName[MAX_LOGFILENAME_LENGTH];
-	char		m_serverID;
 	
 
 	CConnection*		m_pNpcServerConn;

@@ -158,7 +158,7 @@ bool CNPCManager::GatherVBuffer_NpcInfo(int area)
 		return false;
 
 	// 카운팅 검사
-	unsigned short fixedSize = 0;
+	int fixedSize = 0;
 	for (size_t i = 0; i < size; i++)
 	{
 		CNPC& npc = *m_vecAreaNPC[area].at(i);
@@ -172,7 +172,7 @@ bool CNPCManager::GatherVBuffer_NpcInfo(int area)
 		return false;
 
 	tls_pSer->StartSerialize();
-	tls_pSer->Serialize(static_cast<packet_type>(PacketType::GS_CL_UpdateNPC));
+	//tls_pSer->Serialize(static_cast<packet_type>(PacketType::GS_CL_UpdateNPC));
 	tls_pSer->Serialize(fixedSize);
 	for (size_t i = 0; i < size; i++)
 	{
@@ -193,8 +193,8 @@ bool CNPCManager::GatherVBuffer_NpcInfo(int area)
 	}
 
 	// 디버깅
-	if(0 != fixedSize)
-		LOG(LOG_ERROR_LOW, "SYSTEM | CNPCManager::GatherVBuffer_NpcInfo() | if(0!= fixedSize) %u", fixedSize);
+	if (0 != fixedSize)
+		LOG(LOG_ERROR_LOW, "SYSTEM | CNPCManager::GatherVBuffer_NpcInfo() | if(0!= fixedSize) %d", fixedSize);
 
 	return true;
 }

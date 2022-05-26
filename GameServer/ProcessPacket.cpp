@@ -6,30 +6,20 @@ void CProcessPacket::fnSendToWorldPlayer_RecvBufferFromServer(CPlayer* pPlayer, 
 	PlayerManager()->Send_TCP_RecvBufferFromServer(pRecvedMsg, dwSize);
 }
 
-void CProcessPacket::fnSendToNS_RecvBufferFromClient(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+
+void CProcessPacket::fnSendToLoginServer_RecvBufferFromClient(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
-	CConnection* pNpcConn = IocpGameServer()->GetNpcServerConn(); if (NULL == pNpcConn) return;
-	char* pSendBuffer = pNpcConn->PrepareSendPacket(dwSize); if (NULL == pSendBuffer) return;
-	CopyMemory(pSendBuffer, pRecvedMsg, dwSize);
-	pNpcConn->SendPost(dwSize);
+	CConnection* pCon = IocpGameServer()->GetLoginServerConn();
+	if (nullptr == pCon)
+		return;
+	char* pBuffer = pCon->PrepareSendPacket(dwSize);
+	if (nullptr == pBuffer)
+		return;
+	CopyMemory(pBuffer, pRecvedMsg, dwSize);
+	pCon->SendPost(dwSize);
 }
 
-void CProcessPacket::fnSendToDA_RecvBufferFromClient(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
-{
-	CConnection* pDAConn = IocpGameServer()->GetDbAgentConn();
-	if (NULL == pDAConn)
-		return;
-	char* pSendBuffer = pDAConn->PrepareSendPacket(dwSize);
-	if (NULL == pSendBuffer)
-		return;
-	CopyMemory(pSendBuffer, pRecvedMsg, dwSize);
-	pDAConn->SendPost(dwSize);
-}
 
-void CProcessPacket::fnPushDBQueue(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
-{
-	//DatabaseManager()->PushDBQueue(pPlayer, dwSize, pRecvedMsg);
-}
 
 void CProcessPacket::fnSendToAreaPlayer_RecvBufferFromServer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
@@ -66,7 +56,7 @@ void CProcessPacket::fnStartGame_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecv
 
 
 
-void CProcessPacket::CL_GS_Login(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	if (!PlayerManager()->AddPlayer(pPlayer))
 	{
@@ -85,12 +75,19 @@ void CProcessPacket::CL_GS_Login(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMs
 	//PlayerManager()->GS_CL_LoginPlayerInfo(pPlayer);
 
 
+	///*
+	//if (player.m_bIsDummy)
+	//{
+		player.m_pos = Vector3(CMTRand::GetRand_float(-30.0f, 30.0f), CMTRand::GetRand_float(-30.0f, 30.0f), CMTRand::GetRand_float(-30.0f, 30.0f));
+	//}
+	//*/
+
 
 	///*
 	// 영역
-	player.m_pos.Zero();
-	int nArea = AreaManager()->GetPosToArea(pPlayer->m_pos);
-	player.SetArea(nArea);
+	//player.m_pos.Zero();
+	int area = AreaManager()->GetPosToArea(pPlayer->m_pos);
+	player.SetArea(area);
 	AreaManager()->UpdateActiveAreas(pPlayer);
 	AreaManager()->AddPlayerToArea(pPlayer, pPlayer->GetArea());
 	AreaManager()->Send_UpdateAreaForCreateObject(pPlayer);
@@ -100,14 +97,81 @@ void CProcessPacket::CL_GS_Login(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMs
 	pPlayer->SetIsConfirm(true);
 	LOG(LOG_INFO_LOW, "ID (%u) Connected. / Current Players (%u)",
 		pPlayer->GetKey(), PlayerManager()->GetPlayerCnt());
+
+	char result = 0;
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::StartGame_Res));
+	tls_pSer->Serialize(result);
+	tls_pSer->Serialize(pPlayer->GetNickName());
+	char* pBuffer = pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+	if (nullptr == pBuffer)
+		return;
+	tls_pSer->CopyBuffer(pBuffer);
+	pPlayer->SendPost(tls_pSer->GetCurBufSize());
 }
 
-void CProcessPacket::CL_GS_CurNPCPosFromHost(CPlayer* _pPlayer, DWORD dwSize, char* _pRecvedMsg)
+void CProcessPacket::fnMoveServer_Not1(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
-	NPCManager()->CL_GS_CurNPCPosFromHost(_pRecvedMsg);
+	// map에 키랑 캐릭터정보들 넣는다
+	char nextServerID = -1; char prevServerID = -1; unsigned int playerKey = 0;
+	tls_pSer->StartDeserialize(pRecvedMsg);
+	tls_pSer->Deserialize(nextServerID);
+	tls_pSer->Deserialize(prevServerID);
+	tls_pSer->Deserialize(playerKey);
+
+	unsigned int nextKey = PlayerManager()->MoveServer_Not1(pRecvedMsg);
+
+
+	// 키랑 다음서버번호, 전서버번호 보낸다
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::MoveServer_Not2));
+	tls_pSer->Serialize(prevServerID);
+	tls_pSer->Serialize(nextServerID);
+	tls_pSer->Serialize(playerKey);
+	tls_pSer->Serialize(nextKey);
+
+
+	CConnection* pCon = IocpGameServer()->GetLoginServerConn();
+	if (pCon == nullptr)
+		return;
+	char* pBuffer = pCon->PrepareSendPacket(tls_pSer->GetCurBufSize());
+	if (nullptr == pBuffer)
+		return;
+	tls_pSer->CopyBuffer(pBuffer);
+	pPlayer->SendPost(tls_pSer->GetCurBufSize());
+
+	puts("2");
 }
 
-void CProcessPacket::CL_GS_MovePlayer(CPlayer* _pPlayer, DWORD dwSize, char* _pRecvedMsg)
+void CProcessPacket::fnMoveServer_Not2(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+{
+	// nextID predID  playerKey nextPlayerKey
+	char nextServerID = -1; char prevServerID = -1; unsigned int playerKey = 0; unsigned int nextPlayerKey = 0;
+	tls_pSer->StartDeserialize(pRecvedMsg);
+	tls_pSer->Deserialize(nextServerID);
+	tls_pSer->Deserialize(prevServerID);
+	tls_pSer->Deserialize(playerKey);
+	tls_pSer->Deserialize(nextPlayerKey);
+
+	CPlayer* realPlayer = PlayerManager()->FindPlayer(playerKey);
+	if (realPlayer == nullptr)
+		return;
+
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::MoveServer_Res));
+	tls_pSer->Serialize(nextServerID);
+	tls_pSer->Serialize(nextPlayerKey);
+
+	char* pBuffer = realPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+	if (nullptr == pBuffer)
+		return;
+	tls_pSer->CopyBuffer(pBuffer);
+	realPlayer->SendPost(tls_pSer->GetCurBufSize());
+
+	puts("3");
+}
+
+void CProcessPacket::fnMovePlayer_Req(CPlayer* _pPlayer, DWORD dwSize, char* _pRecvedMsg)
 {
 	//if (false == pPlayer->GetIsConfirm()) return; // UDP테스트중에는 닫는다
 
@@ -123,6 +187,59 @@ void CProcessPacket::CL_GS_MovePlayer(CPlayer* _pPlayer, DWORD dwSize, char* _pR
 	//Sleep(0);
 	//InterlockedExchange((LPLONG)&s_bNpcServLock, FALSE);
 }
+
+void CProcessPacket::fnChangeColor_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+{
+	tls_pSer->StartDeserialize(pRecvedMsg);
+	tls_pSer->Deserialize(pPlayer->m_color.r);
+	tls_pSer->Deserialize(pPlayer->m_color.g);
+	tls_pSer->Deserialize(pPlayer->m_color.b);
+	tls_pSer->Deserialize(pPlayer->m_color.a);
+	tls_pSer->Deserialize(pPlayer->m_color.mode);
+
+	AreaManager()->ChangeColor_Req(pPlayer);
+}
+
+void CProcessPacket::fnMoveServer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+{
+	char nextServerID = -1;
+	tls_pSer->StartDeserialize(pRecvedMsg);
+	tls_pSer->Deserialize(nextServerID);
+
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::MoveServer_Not1));
+	tls_pSer->Serialize(nextServerID);
+	tls_pSer->Serialize(pPlayer->GetKey());
+	tls_pSer->Serialize(IocpGameServer()->m_serverID);
+	// 캐릭터정보들 직렬화
+
+	CConnection* pCon = IocpGameServer()->GetLoginServerConn();
+	if (nullptr == pCon)
+		return;
+	char* pBuffer = pCon->PrepareSendPacket(tls_pSer->GetCurBufSize());
+	if (nullptr == pBuffer)
+		return;
+	tls_pSer->CopyBuffer(pBuffer);
+	pCon->SendPost(tls_pSer->GetCurBufSize());
+
+	puts("1");
+}
+
+void CProcessPacket::fnPlayerInfoAndMoveLevel_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+{
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::PlayerInfoAndMoveLevel_Res));
+
+	char* pBuffer = pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+	if (nullptr == pBuffer)
+		return;
+	tls_pSer->CopyBuffer(pBuffer);
+	pPlayer->SendPost(tls_pSer->GetCurBufSize());
+}
+
+
+
+
 
 void CProcessPacket::CL_GS_CL_PlayerAreaAttack(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
@@ -150,16 +267,6 @@ void CProcessPacket::fnKeepAliveCn(CPlayer* pPlayer, DWORD dwSize, char* pRecved
 	//PlayerManager()->Send_한플레이어에게패킷타입으로보내는함수(pPlayer, GS_CL_KeepAlive_Aq);
 }
 
-void CProcessPacket::CL_GS_GetItem(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
-{
-	ItemManager()->Recv_GetItem(pPlayer, pRecvedMsg);
-}
-
-void CProcessPacket::CL_GS_DiscardItem(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
-{
-	PlayerManager()->CL_GS_DiscardItem(pPlayer, dwSize, pRecvedMsg);
-}
-
 void CProcessPacket::CL_GS_UseMedKit(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	pPlayer->SetHP(pPlayer->GetHP() + 20);
@@ -168,19 +275,6 @@ void CProcessPacket::CL_GS_UseMedKit(CPlayer* pPlayer, DWORD dwSize, char* pRecv
 void CProcessPacket::CL_GS_UseVaccine(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	pPlayer->m_isInfection = false;
-}
-
-void CProcessPacket::CL_GS_GetVictim(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
-{
-	ItemManager()->CL_GS_GetVictim(pRecvedMsg);
-}
-
-void CProcessPacket::CL_GS_EquipGun(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
-{
-	tls_pSer->StartDeserialize(pRecvedMsg);
-	tls_pSer->Deserialize(pPlayer->m_equipGun);
-
-	PlayerManager()->CL_GS_EquipGun(pPlayer, pRecvedMsg);
 }
 
 void CProcessPacket::CL_GS_CL_CureDeadPlayer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)

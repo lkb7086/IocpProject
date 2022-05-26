@@ -309,6 +309,8 @@ void CNPC::DoWander()
 	{
 	case State::NPC_NORMAL:
 	{
+		m_updatePacketRefCount++;
+
 		if (30 < ++m_nMovingCount) // 일정시간 후 다시 제자리로 돌아간다
 		{
 			m_nMovingCount = 0;
@@ -349,8 +351,8 @@ void CNPC::DoWander()
 	default:
 		break;
 	}
-
-	m_updatePacketRefCount++;
+	
+	//m_updatePacketRefCount++;
 }
 
 void CNPC::DoAttack()

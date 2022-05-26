@@ -89,6 +89,9 @@ public:
 	// ¿Ãµø
 	void Send_MovePlayerToActiveAreas(CPlayer *pPlayer, char *pRecvedMsg);
 
+
+	void ChangeColor_Req(CPlayer* pPlayer);
+
 private:
 	CMonitorSRW		m_srwArea;
 	

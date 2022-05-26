@@ -8,6 +8,7 @@ CPlayerManager::CPlayerManager() : m_nNpcAreaCount(0), m_pPlayer(nullptr), m_pHo
 	m_mapPlayer.rehash(MAX_USER_COUNT); // 2ÀÇ °ÅµìÁ¦°ö
 	m_mapPlayer.clear();
 
+	m_generatePlayerKey = 0;
 	m_isNotSetupHost = true;
 }
 
@@ -120,144 +121,15 @@ void CPlayerManager::Send_TCP_WithPacketTypeToPlayer(CPlayer* _pPlayer, PacketTy
 	_pPlayer->SendPost(tls_pSer->GetCurBufSize());
 }
 
-void CPlayerManager::GS_CL_LoginPlayerInfo(CPlayer* pPlayer)
+
+unsigned int CPlayerManager::MoveServer_Not1(char* pMsg)
 {
-	CSerializer& ser = *tls_pSer;
-	ser.StartSerialize();
-	ser.Serialize(static_cast<packet_type>(PacketType::GS_CL_LoginPlayerInfo));
-	ser.Serialize(pPlayer->GetKey());
-
-	for (auto it = m_mapPlayer.begin(); it != m_mapPlayer.end(); ++it)
-	{
-		CPlayer* pWorldPlayer = (CPlayer*)it->second;
-		if (pWorldPlayer->m_bIsDummy || pWorldPlayer == pPlayer)
-			continue;
-
-		char* pLoginPlayerInfo = pWorldPlayer->PrepareSendPacket(ser.GetCurBufSize());
-		if (nullptr == pLoginPlayerInfo)
-			continue;
-		ser.CopyBuffer(pLoginPlayerInfo);
-		pWorldPlayer->SendPost(ser.GetCurBufSize());
-	}
-}
-
-void CPlayerManager::GS_CL_WorldPlayerInfo(CPlayer* pPlayer)
-{
-	unsigned int uiPlayerCnt = (unsigned int)m_mapPlayer.size() - 1; // ÀÚ½ÅÀº »«´Ù
-	if (0 == uiPlayerCnt) return;
-	tls_pSer->StartSerialize();
-	tls_pSer->Serialize(static_cast<packet_type>(PacketType::GS_CL_WorldPlayerInfo));
-	tls_pSer->Serialize(uiPlayerCnt);
-	for (auto player_it = m_mapPlayer.begin(); player_it != m_mapPlayer.end(); ++player_it)
-	{
-		CPlayer* pWorldPlayer = (CPlayer*)player_it->second;
-		if (nullptr == pWorldPlayer || pWorldPlayer == pPlayer)
-			continue;
-		tls_pSer->Serialize(pWorldPlayer->GetKey());
-		tls_pSer->Serialize(pWorldPlayer->m_equipGun);
-
-		tls_pSer->Serialize((char)pWorldPlayer->m_isDead);
-
-		tls_pSer->Serialize(pWorldPlayer->m_pos.x);
-		tls_pSer->Serialize(pWorldPlayer->m_pos.y);
-		tls_pSer->Serialize(pWorldPlayer->m_pos.z);
-	}
-	//printf("ÆÐÅ¶¿ë·®: %d\n", tls_pSer->GetCurBufSize());
-	char* pWorldPlayerInfos = pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
-	if (nullptr == pWorldPlayerInfos) return;
-	tls_pSer->CopyBuffer(pWorldPlayerInfos);
-	pPlayer->SendPost(tls_pSer->GetCurBufSize());
-}
-
-
-void CPlayerManager::GS_CL_LoginInfo(CPlayer& player)
-{
-	CSerializer& ser = *tls_pSer;
-	ser.StartSerialize();
-	ser.Serialize(static_cast<packet_type>(PacketType::GS_CL_LoginInfo));
-	ser.Serialize(player.GetKey());
-	ser.Serialize(IocpGameServer()->m_dayAndNightTime);
-
-	char* pBuf = player.PrepareSendPacket(ser.GetCurBufSize());
-	if (nullptr == pBuf)
-		return;
-	ser.CopyBuffer(pBuf);
-	player.SendPost(ser.GetCurBufSize());
-}
-
-void CPlayerManager::Send_LogoutPlayer(CPlayer* pPlayer)
-{
-	if (0 == pPlayer->GetKey())
-		return;
-
-	for (auto player_it = m_mapPlayer.begin(); player_it != m_mapPlayer.end(); player_it++)
-	{
-		CPlayer* pWorldPlayer = (CPlayer*)player_it->second;
-		if (pWorldPlayer->m_bIsDummy || pWorldPlayer == pPlayer)
-			continue;
-		stUtil_UInteger* pLogout = (stUtil_UInteger*)pWorldPlayer->PrepareSendPacket(sizeof(stUtil_UInteger));
-		if (nullptr == pLogout)
-			continue;
-		pLogout->type = static_cast<packet_type>(PacketType::GS_CL_LogoutPlayer);
-		pLogout->nUInteger = pPlayer->GetKey();
-		pWorldPlayer->SendPost(sizeof(stUtil_UInteger));
-	}
-}
-
-void CPlayerManager::GS_CL_CurNPCPosFromHost(CPlayer& player)
-{
-	NPCManager()->m_vecNPCInfoPlayer.push_back(&player);
-
-	CSerializer& ser = *tls_pSer;
-	ser.StartSerialize();
-	ser.Serialize(static_cast<packet_type>(PacketType::GS_CL_CurNPCPosFromHost));
-
-	for (auto it = m_mapPlayer.begin(); m_mapPlayer.end() != it; ++it)
-	{
-		CPlayer* pWorldPlayer = (CPlayer*)it->second;
-		if (pWorldPlayer->m_isHost)
-		{
-			char* pBuf = pWorldPlayer->PrepareSendPacket(ser.GetCurBufSize());
-			if (nullptr == pBuf)
-				return;
-			ser.CopyBuffer(pBuf);
-			pWorldPlayer->SendPost(ser.GetCurBufSize());
-			return;
-		}
-	}
-}
-
-void CPlayerManager::CL_GS_DiscardItem(CPlayer* pPlayer, DWORD dwSize, char* pMsg)
-{
-	unsigned short itemCode = 0xFFFF;
-	Vector3 discardPos;
+	char nextServerID = -1; char prevServerID = -1;
+	unsigned int key = GeneratePrivateKey();
+	PlayerInfo playerInfo;
 	tls_pSer->StartDeserialize(pMsg);
-	tls_pSer->Deserialize(itemCode);
-	tls_pSer->Deserialize(discardPos.x);
-	tls_pSer->Deserialize(discardPos.y);
-	tls_pSer->Deserialize(discardPos.z);
 
-	Item item;
-	unsigned short itemKey = ItemManager()->GenerateItemKey();
-	item.code = itemCode;
-	item.x = discardPos.x; item.y = discardPos.y; item.z = discardPos.z;
-	ItemManager()->InsertItem(itemKey, item);
-
-	CSerializer& ser = *tls_pSer;
-	ser.StartSerialize();
-	ser.Serialize(static_cast<packet_type>(PacketType::GS_CL_DiscardItem));
-	ser.Serialize(itemKey);
-	ser.Serialize(itemCode);
-	ser.Serialize(item.x);
-	ser.Serialize(item.y);
-	ser.Serialize(item.z);
-	for (auto it = m_mapPlayer.begin(); it != m_mapPlayer.end(); ++it)
-	{
-		CPlayer* pWorldPlayer = (CPlayer*)it->second;
-		char* pBuf = pWorldPlayer->PrepareSendPacket(ser.GetCurBufSize());
-		if (nullptr == pBuf)
-			continue;
-		ser.CopyBuffer(pBuf);
-		pWorldPlayer->SendPost(ser.GetCurBufSize());
-	}
+	
+	m_mapPlayerInfo.insert(pair<unsigned int, PlayerInfo>(key, playerInfo));
+	return key;
 }

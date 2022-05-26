@@ -9,8 +9,12 @@ public:
 	static void fnConfirmID_Req(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
 	static void fnConfirmIDGameServer_Res(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
 	static void fnJoinID_Req(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
-	static void LogoutPlayerID_Not(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
+	static void fnLogoutPlayerID_Not(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
+	static void fnMoveServer_Not1(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
+	static void fnMoveServer_Not2(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
 	
+
+
 
 
 	static void fnSelectUnit_Rq(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);

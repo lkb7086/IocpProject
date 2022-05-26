@@ -37,10 +37,12 @@ void CIocpLoginServer::InitProcessFunc()
 
 	un_mapPakect.insert(PACKET_PAIR(PacketType::JoinID_Req, CProcessPacket::fnJoinID_Req));
 
-	un_mapPakect.insert(PACKET_PAIR(PacketType::LogoutPlayerID_Not, CProcessPacket::LogoutPlayerID_Not));
+	un_mapPakect.insert(PACKET_PAIR(PacketType::LogoutPlayerID_Not, CProcessPacket::fnLogoutPlayerID_Not));
 
+	un_mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Not1, CProcessPacket::fnMoveServer_Not1));
+	un_mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Not2, CProcessPacket::fnMoveServer_Not2));
 
-
+	
 
 	//un_mapPakect.insert(PACKET_PAIR(CL_LS_ConfirmID_Rq, CProcessPacket::fnConfirmID_Rq));
 	//un_mapPakect.insert(PACKET_PAIR(CL_LS_SelectUnit_Rq, CProcessPacket::fnSelectUnit_Rq));

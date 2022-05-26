@@ -24,15 +24,20 @@ void CProcessPacket::fnJoinID_Req(CConnection* pConn, DWORD dwSize, char* pRecve
 	DatabaseManager()->JoinID_Req(pConn, pRecvedMsg);
 }
 
-void CProcessPacket::LogoutPlayerID_Not(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
+void CProcessPacket::fnLogoutPlayerID_Not(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
 {
 	DatabaseManager()->LogoutPlayerID_Not(pRecvedMsg);
 }
 
+void CProcessPacket::fnMoveServer_Not1(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
+{
+	DatabaseManager()->MoveServer_Not1(pRecvedMsg, dwSize);
+}
 
-
-
-
+void CProcessPacket::fnMoveServer_Not2(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
+{
+	DatabaseManager()->MoveServer_Not2(pRecvedMsg, dwSize);
+}
 
 
 
@@ -51,11 +56,6 @@ void CProcessPacket::fnSelectUnit_Aq(CConnection* pConn, DWORD dwSize, char* pRe
 		return;
 	CopyMemory(pBuffer, pRecvedMsg, dwSize);
 	pPlayer->SendPost(dwSize);
-}
-
-void CProcessPacket::fnLogoutPlayer_Cn(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
-{
-	DatabaseManager()->Recv_LogoutPlayer_Cn(pConn, pRecvedMsg);
 }
 
 void CProcessPacket::fnCreateUnitRq(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)

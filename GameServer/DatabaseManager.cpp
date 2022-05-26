@@ -133,8 +133,6 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 		tls_pSer->CopyBuffer(pBuffer);
 		info.pPlayer->SendPost(tls_pSer->GetCurBufSize());
 	}
-
-	//CResultEraser eraser2(result, m_pConnection);
 }
 
 void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
@@ -158,7 +156,7 @@ void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 
 
 	char query[128]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT * FROM character WHERE name = '%s'", name);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT name FROM character WHERE name = '%s'", name);
 
 	int state = mysql_query(m_pConnection, query);
 
@@ -219,7 +217,7 @@ void CDatabaseManager::DeleteCharacter_Req(const stPlayerInfo& info)
 	tls_pSer->Deserialize(name, sizeof(name));
 
 	char query[128]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT * FROM character WHERE name = '%s'", name);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT name FROM character WHERE name = '%s'", name);
 
 	int state = mysql_query(m_pConnection, query);
 
@@ -275,12 +273,11 @@ void CDatabaseManager::StartGame_Req(const stPlayerInfo& info)
 	tls_pSer->Deserialize(name, sizeof(name));
 
 	char query[128]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT * FROM character WHERE name = '%s'", name);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT * FROM coloverse.character WHERE name = '%s'", name);
 
 	int state = mysql_query(m_pConnection, query);
 
-	MYSQL_RES* pResult = nullptr;
-	pResult = mysql_store_result(m_pConnection);
+	MYSQL_RES* pResult = mysql_store_result(m_pConnection);
 	CResultEraser eraser(pResult, m_pConnection);
 
 	if (0 != state)
@@ -289,15 +286,19 @@ void CDatabaseManager::StartGame_Req(const stPlayerInfo& info)
 		return;
 	}
 
-	tls_pSer->StartSerialize();
-	tls_pSer->Serialize(static_cast<packet_type>(PacketType::StartGame_Res));
-
 	state = mysql_num_rows(pResult);
 	if (state == 0)
 	{
 		// 시작할 캐릭터가 없어서 실패
 		result = 1;
+		tls_pSer->StartSerialize();
+		tls_pSer->Serialize(static_cast<packet_type>(PacketType::StartGame_Res));
 		tls_pSer->Serialize(result);
+		char* pBuffer = info.pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+		if (nullptr == pBuffer)
+			return;
+		tls_pSer->CopyBuffer(pBuffer);
+		info.pPlayer->SendPost(tls_pSer->GetCurBufSize());
 	}
 	else
 	{
@@ -305,17 +306,31 @@ void CDatabaseManager::StartGame_Req(const stPlayerInfo& info)
 		if (row == nullptr)
 			return;
 
-		tls_pSer->Serialize(result);
 		int index = 0;
+		unsigned long long uid = atoll(row[index++]);
 		index++;
-		index++;
-		tls_pSer->Serialize(row[index++]);
+		string nickName = row[index++];
+		char characterIndex = atoi(row[index++]);
+		char species = atoi(row[index++]);
+		char gender = atoi(row[index++]);
+		float height = atof(row[index++]);
+		float width = atof(row[index]);
+
+		// 아직 틱스레드가 player 메모리를 안건드릴때라 여기서 함
+		info.pPlayer->SetUID(uid);
+		info.pPlayer->SetNickName(nickName.c_str());
+		info.pPlayer->SetCharacterIndex(characterIndex);
+		info.pPlayer->SetSpecies(species);
+		info.pPlayer->SetGender(gender);
+		info.pPlayer->SetHeight(height);
+		info.pPlayer->SetWidth(width);
+
+		// 틱스레드로 로그인준비하러 보낸다
+		tls_pSer->StartSerialize();
+		tls_pSer->Serialize(static_cast<packet_type>(PacketType::StartLogin_Not));
+
+		char* p = m_ringBuffer.ForwardMark(tls_pSer->GetCurBufSize());
+		tls_pSer->CopyBuffer(p);
+		IocpGameServer()->m_pTickThread->Enqueue_PacketQ(info.pPlayer, tls_pSer->GetCurBufSize(), p);
 	}
-
-	char* pBuffer = info.pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
-	if (nullptr == pBuffer)
-		return;
-	tls_pSer->CopyBuffer(pBuffer);
-	info.pPlayer->SendPost(tls_pSer->GetCurBufSize());
 }
-

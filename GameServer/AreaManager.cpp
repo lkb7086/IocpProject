@@ -275,12 +275,7 @@ void CAreaManager::Send_UpdateNPC_VSn()
 {
 	for (int i = 0; i < MAX_AREA; i++)
 	{
-		// 먼저 9방향구함
-
-		// 플레이어들 컨테이너에 있는지 검사
-
-		// 영역컨테이너 i번부터 모음
-		if (false == NPCManager()->GatherVBuffer_NpcInfo(i)) // 이건사실 의미없음(NPC가 계속 움직여야 하면)
+		if (false == NPCManager()->GatherVBuffer_NpcInfo(i))
 			continue;
 
 		// i영역의 9방향을 구한다
@@ -336,7 +331,8 @@ void CAreaManager::Send_UpdateNPC_VSn()
 			for (auto it = m_mapArea[area].begin(); it != m_mapArea[area].end(); ++it)
 			{
 				CPlayer* pPlayer = (CPlayer*)*it;
-				if (nullptr == pPlayer || pPlayer->m_isInitNPCInfo == false)
+				//if (nullptr == pPlayer || pPlayer->m_isInitNPCInfo == false)
+				if (nullptr == pPlayer)
 					continue;
 				char* pBuf = pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
 				if (nullptr == pBuf)
@@ -526,7 +522,7 @@ void CAreaManager::Send_MovePlayerToActiveAreas(CPlayer* pPlayer, char *pRecvedM
 			if (nullptr == pMove)
 				continue;
 			//pMove->type = static_cast<packet_type>(PacketType::GS_CL_MovePlayer);
-			pMove->type = static_cast<packet_type>(PacketType::GS_CL_MovePlayer);
+			pMove->type = static_cast<packet_type>(PacketType::MovePlayer_Res);
 			pMove->key = pPlayer->GetKey();
 			pMove->posX = pPlayer->m_pos.x;
 			pMove->posY = pPlayer->m_pos.y;
@@ -566,6 +562,39 @@ void CAreaManager::DetectPlayerFromNPC(CNPC* pDetectNPC)
 			pDetectNPC->SetTagetPlayerPKey(pPlayer->GetKey());
 			pDetectNPC->SetEvent(Event::EVENT_PLAYER_APPEAR);
 			break;
+		}
+	}
+}
+
+
+
+void CAreaManager::ChangeColor_Req(CPlayer* pPlayer)
+{
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::ChangeColor_Res));
+	tls_pSer->Serialize(pPlayer->m_color.r);
+	tls_pSer->Serialize(pPlayer->m_color.g);
+	tls_pSer->Serialize(pPlayer->m_color.b);
+	tls_pSer->Serialize(pPlayer->m_color.a);
+	tls_pSer->Serialize(pPlayer->m_color.mode);
+
+	int* pActiveAreas = pPlayer->GetActiveAreas();
+	for (int i = 0; i < MAX_ACTIVE_AREAS; i++)
+	{
+		int area = pActiveAreas[i];
+		if (area < 0 || area >= MAX_AREA)
+			continue;
+
+		for (auto it = m_mapArea[area].begin(); it != m_mapArea[area].end(); ++it)
+		{
+			CPlayer* pPlayer = (CPlayer*)*it;
+			if (nullptr == pPlayer)
+				continue;
+			char* pBuf = pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+			if (nullptr == pBuf)
+				continue;
+			tls_pSer->CopyBuffer(pBuf);
+			pPlayer->SendPost(tls_pSer->GetCurBufSize());
 		}
 	}
 }

@@ -92,20 +92,10 @@ void CTickThread::OnProcess()
 		i % 32  =>  i & 31
 		*/
 
-		if (0 == (m_dwTickCount % 900))
-		{
-			//IocpGameServer()->GS_CL_DayAndNightTime();
-		}
-
-		if (0 == (m_dwTickCount % 900)) // 30프레임일시 30초마다
-		{
-			//PlayerManager()->CheckInfection();
-		}
-
 		// 플레이어 영역업데이트
 		if (0 == (m_dwTickCount & 31))
 		{
-			AreaManager()->DoUpdateArea_ZonePlayers();
+			//AreaManager()->DoUpdateArea_ZonePlayers();
 		}
 
 		// NPC 프레임처리
@@ -113,16 +103,6 @@ void CTickThread::OnProcess()
 		{
 			//NPCManager()->UpdateNpc();
 			//AreaManager()->Send_UpdateNPC_VSn();
-		}
-
-		if (0 == (m_dwTickCount % 22000)) // 22000
-		{
-			//NPCManager()->DoHugeWave();
-		}
-
-		if (0 == (m_dwTickCount % 10000))
-		{
-			//NPCManager()->DoSmallWave();
 		}
 	}
 	break;

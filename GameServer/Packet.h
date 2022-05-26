@@ -3,7 +3,7 @@
 enum class PacketType : packet_type
 {
 	// 로그인서버
-	ConfirmID_Req,
+	ConfirmID_Req = 0,
 	ConfirmID_Res,
 	JoinID_Req,
 	JoinID_Res,
@@ -17,62 +17,29 @@ enum class PacketType : packet_type
 
 
 
-
-
-
-
-
-
-
-
-
-	// 로그인
-	CL_GS_Login,
-	GS_CL_LoginInfo,
-	GS_CL_WorldPlayerInfo,
-	GS_CL_LoginPlayerInfo,
-	// NPC초기화
-	GS_CL_NPCInfo,
-	GS_CL_CurNPCPosFromHost,
-	CL_GS_CurNPCPosFromHost,
-	// NPC업데이트
-	GS_CL_UpdateNPC,
-	// 로그아웃
-	GS_CL_LogoutPlayer,
 	// 이동
-	CL_GS_MovePlayer,
-	GS_CL_MovePlayer,
-	// 아이템
-	GS_CL_InitItemInfo,
-	GS_CL_VictimInfo,
-	CL_GS_GetItem,
-	GS_CL_GetItem,
-	CL_GS_DiscardItem,
-	GS_CL_DiscardItem,
-	CL_GS_UseMedKit,
-	CL_GS_UseVaccine,
-	CL_GS_GetVictim,
-	GS_CL_GetVictim,
-	CL_GS_EquipGun,
-	GS_CL_EquipGun,
-	CL_GS_CL_CureDeadPlayer,
+	MovePlayer_Req,
+	MovePlayer_Res,
+
+	// 컬러
+	ChangeColor_Req,
+	ChangeColor_Res,
+	// 서버이동
+	MoveServer_Req,
+	MoveServer_Res,
+	PlayerInfoAndMoveLevel_Req,
+	PlayerInfoAndMoveLevel_Res,
+
+
+
+
+
 	// 지역
 	CL_GS_UpdateAreaForDeleteObject,
 	UpdateAreaForCreateObjectV_Not,
 	UpdateAreaForCreateObject_Not,
 	CL_GS_UpdateAreaForDeleteObjectV,
-	// 공격
-	GS_CL_PlayerAttackEffect,
-	CL_GS_CL_PlayerAreaAttack,
-	CL_GS_PlayerAttackToNPC,
-	CL_GS_NPCAttackToPlayer,
-	GS_CL_PlayerInfection,
-	GS_CL_PlayerHP,
-	GS_CL_PlayerDead,
-	// 웨이브
-	GS_CL_StartWave,
 
-	GS_CL_DayAndNightTime,
 
 	CL_GS_CL_Chat,
 
@@ -84,8 +51,12 @@ enum class PacketType : packet_type
 	ConfirmIDGameServer_Req,
 	ConfirmIDGameServer_Res,
 	StartLobby_Not,
+	StartLogin_Not,
 	LogoutPlayerID_Not,
+	MoveServer_Not1,
+	MoveServer_Not2,
 
+	// 툴
 	ServerTestPacket = 40000,
 	Notice_Not = 40001,
 
@@ -139,14 +110,6 @@ struct stUtil_UI_F_F : PacketHeader { unsigned int nUInteger; float nFloat1; flo
 
 
 
-
-struct MovePlayer_Cn : PacketHeader
-{
-	unsigned int nPKey;
-	float x;
-	float y;
-	float z;
-};
 
 
 struct MovePlayer_Sn : PacketHeader

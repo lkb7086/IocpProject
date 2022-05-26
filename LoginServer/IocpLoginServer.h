@@ -53,17 +53,14 @@ public:
 	}
 
 
-
 private:
 	CConnection*		m_pGameServerConn;
-	//Æ½ ¾²·¹µå
+
 	CTickThread*		m_pTickThread;
 
 	unsigned long long				m_nPrivateKey;
 
 
-	// TODO ////////////////////////////////////////////////////////
-private:
 	typedef void(*funcProcessPacket)(CConnection* lpConnection, DWORD dwSize, char* pRecvedMsg);
 	typedef pair< PacketType, funcProcessPacket >			PACKET_PAIR;
 	typedef unordered_map< PacketType, funcProcessPacket >  PACKET_UNMAP;

@@ -30,16 +30,10 @@ public:
 	void JoinID_Req(CConnection* pConnection, char* pRecvedMsg);
 	void ConfirmIDGameServer_Res(char* pMsg);
 	void LogoutPlayerID_Not(char* pRecvedMsg);
+	void MoveServer_Not1(char* pRecvedMsg, DWORD size);
+	void MoveServer_Not2(char* pRecvedMsg, DWORD size);
+	
 
-
-	void Recv_LogoutPlayer_Cn(CConnection* pConnection, char* pRecvedMsg)
-	{
-		char szID[MAX_ID_LENGTH]; memset(szID, 0x00, sizeof(szID));
-		m_pSerializer->StartDeserialize(pRecvedMsg);
-		m_pSerializer->Deserialize(szID, sizeof(szID));
-
-		EraseID(szID);
-	}
 
 	void InsertID(string _szID)
 	{

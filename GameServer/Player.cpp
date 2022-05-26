@@ -53,7 +53,7 @@ void CPlayer::InitPlayer()
 	m_equipGun = 0xFF;
 	m_isHost = false;
 
-	m_arrItem.fill(stItem());
+	m_arrItem.fill(Item());
 }
 
 void CPlayer::SetPlayInfo(char* pRecvedMsg)

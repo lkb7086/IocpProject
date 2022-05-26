@@ -15,10 +15,7 @@ public:
 	// 지역 TCP유틸리티
 	static void fnSendToAreaPlayer_RecvBufferFromServer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	// 서버 유틸리티
-	static void fnSendToNS_RecvBufferFromClient(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);      // 클라이언트에서 받은 버퍼를 NPC서버에 그대로 보낸다
-	static void fnSendToDA_RecvBufferFromClient(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);      // 클라이언트에서 받은 버퍼를 DA에 그대로 보낸다
-	// DBqueue
-	static void fnPushDBQueue(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnSendToLoginServer_RecvBufferFromClient(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 
 
 
@@ -31,13 +28,27 @@ public:
 
 
 
+	static void fnMovePlayer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnChangeColor_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnMoveServer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnPlayerInfoAndMoveLevel_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	
+
+
 
 	// 로그인
-	static void CL_GS_Login(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnStartLobby_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnMoveServer_Not1(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnMoveServer_Not2(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	
+
+
+
+
 	// NPC초기화
 	static void CL_GS_CurNPCPosFromHost(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
-	// 이동
-	static void CL_GS_MovePlayer(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+
 	// 아이템
 	static void CL_GS_GetItem(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void CL_GS_DiscardItem(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
@@ -57,5 +68,4 @@ public:
 	static void fnKeepAliveCn(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 
 	static void fnServerTestPacket(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
-	static void fnStartLobby_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 };

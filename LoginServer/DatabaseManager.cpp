@@ -72,7 +72,7 @@ void CDatabaseManager::ConfirmID_Req(CConnection* pConnection, char* pRecvedMsg)
 	const string& hash2 = hash.sha512(szPass);
 
 	char query[256]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "select * from user where id = '%s' and pass = '%s'", szID, hash2.c_str());
+	_snprintf_s(query, _countof(query), _TRUNCATE, "select serverid from user where id = '%s' and pass = '%s'", szID, hash2.c_str());
 
 	int	state = -1;
 	state = mysql_query(m_pConnection, query);
@@ -109,7 +109,7 @@ void CDatabaseManager::ConfirmID_Req(CConnection* pConnection, char* pRecvedMsg)
 		MYSQL_ROW row = mysql_fetch_row(pResult);
 		if (row == nullptr)
 			return;
-		((CPlayer*)pConnection)->m_serverID = (char)atoi(row[3]);
+		((CPlayer*)pConnection)->m_serverID = (char)atoi(row[0]);
 		//((CPlayer*)pConnection)->m_serverID = 0;
 
 
@@ -275,8 +275,37 @@ void CDatabaseManager::LogoutPlayerID_Not(char* pRecvedMsg)
 	}
 }
 
+void CDatabaseManager::MoveServer_Not1(char* pRecvedMsg, DWORD size)
+{
+	char nextServerID = -1; char prevServerID = -1;
+	m_pSerializer->StartDeserialize(pRecvedMsg);
+	m_pSerializer->Deserialize(nextServerID);
 
+	CConnection* pServerCon = ConnectionManager()->GetServerConn(nextServerID);
+	if (pServerCon == nullptr)
+		return;
+	char* pBuffer = pServerCon->PrepareSendPacket(size);
+	if (pBuffer == nullptr)
+		return;
+	memcpy_s(pBuffer, size, pRecvedMsg, size);
+	pServerCon->SendPost(size);
+}
 
+void CDatabaseManager::MoveServer_Not2(char* pRecvedMsg, DWORD size)
+{
+	char prevServerID = -1;
+	m_pSerializer->StartDeserialize(pRecvedMsg);
+	m_pSerializer->Deserialize(prevServerID);
+
+	CConnection* pServerCon = ConnectionManager()->GetServerConn(prevServerID);
+	if (pServerCon == nullptr)
+		return;
+	char* pBuffer = pServerCon->PrepareSendPacket(size);
+	if (pBuffer == nullptr)
+		return;
+	memcpy_s(pBuffer, size, pRecvedMsg, size);
+	pServerCon->SendPost(size);
+}
 
 
 
