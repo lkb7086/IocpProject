@@ -88,6 +88,10 @@ void CIocpGameServer::InitProcessFunc()
 
 
 
+
+
+
+
 	mapPakect.insert(PACKET_PAIR(PacketType::StartLobby_Not, CProcessPacket::fnStartLobby_Not));
 	mapPakect.insert(PACKET_PAIR(PacketType::StartLogin_Not, CProcessPacket::fnStartLogin_Not));
 	mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Not1, CProcessPacket::fnMoveServer_Not1));
@@ -370,23 +374,23 @@ void CIocpGameServer::OnClose(CConnection* lpConnection)
 
 	//puts("연결해제");
 
-	tls_pSer->StartSerialize();
-	tls_pSer->Serialize(static_cast<packet_type>(PacketType::LogoutPlayerID_Not));
-	tls_pSer->Serialize(pPlayer->GetID());
-	tls_pSer->Serialize(m_serverID);
-	
-	CConnection* pLoginConn = GetLoginServerConn();
-	char* pSendBuffer = pLoginConn->PrepareSendPacket(tls_pSer->GetCurBufSize());
-	if (nullptr == pSendBuffer)
-		return;
-	tls_pSer->CopyBuffer(pSendBuffer);
-	pLoginConn->SendPost(tls_pSer->GetCurBufSize());
-
-
-
+	if (!pPlayer->m_isMoveServer)
+	{
+		tls_pSer->StartSerialize();
+		tls_pSer->Serialize(static_cast<packet_type>(PacketType::LogoutPlayerID_Not));
+		tls_pSer->Serialize(pPlayer->GetID());
+		tls_pSer->Serialize(m_serverID);
+		CConnection* pLoginConn = GetLoginServerConn();
+		char* pSendBuffer = pLoginConn->PrepareSendPacket(tls_pSer->GetCurBufSize());
+		if (nullptr == pSendBuffer)
+			return;
+		tls_pSer->CopyBuffer(pSendBuffer);
+		pLoginConn->SendPost(tls_pSer->GetCurBufSize());
+	}
 
 	AreaManager()->RemovePlayerFromArea(pPlayer, pPlayer->GetArea());
 	PlayerManager()->RemovePlayer(pPlayer);
+	PlayerManager()->ErasePlayerInfo(pPlayer->GetKey());
 
 	//PlayerManager()->Send_LogoutPlayer(pPlayer);
 

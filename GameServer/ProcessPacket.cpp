@@ -58,11 +58,7 @@ void CProcessPacket::fnStartGame_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecv
 
 void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
-	if (!PlayerManager()->AddPlayer(pPlayer))
-	{
-		IocpGameServer()->CloseConnection(pPlayer);
-		return;
-	}
+	PlayerManager()->AddPlayer(pPlayer);
 
 	CPlayer& player = *pPlayer;
 
@@ -138,9 +134,7 @@ void CProcessPacket::fnMoveServer_Not1(CPlayer* pPlayer, DWORD dwSize, char* pRe
 	if (nullptr == pBuffer)
 		return;
 	tls_pSer->CopyBuffer(pBuffer);
-	pPlayer->SendPost(tls_pSer->GetCurBufSize());
-
-	puts("2");
+	pCon->SendPost(tls_pSer->GetCurBufSize());
 }
 
 void CProcessPacket::fnMoveServer_Not2(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
@@ -148,27 +142,25 @@ void CProcessPacket::fnMoveServer_Not2(CPlayer* pPlayer, DWORD dwSize, char* pRe
 	// nextID predID  playerKey nextPlayerKey
 	char nextServerID = -1; char prevServerID = -1; unsigned int playerKey = 0; unsigned int nextPlayerKey = 0;
 	tls_pSer->StartDeserialize(pRecvedMsg);
-	tls_pSer->Deserialize(nextServerID);
 	tls_pSer->Deserialize(prevServerID);
+	tls_pSer->Deserialize(nextServerID);
 	tls_pSer->Deserialize(playerKey);
 	tls_pSer->Deserialize(nextPlayerKey);
 
-	CPlayer* realPlayer = PlayerManager()->FindPlayer(playerKey);
-	if (realPlayer == nullptr)
-		return;
 
 	tls_pSer->StartSerialize();
 	tls_pSer->Serialize(static_cast<packet_type>(PacketType::MoveServer_Res));
 	tls_pSer->Serialize(nextServerID);
 	tls_pSer->Serialize(nextPlayerKey);
-
+	CPlayer* realPlayer = PlayerManager()->FindPlayer(playerKey);
+	if (realPlayer == nullptr)
+		return;
+	realPlayer->m_isMoveServer = true;
 	char* pBuffer = realPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
 	if (nullptr == pBuffer)
 		return;
 	tls_pSer->CopyBuffer(pBuffer);
 	realPlayer->SendPost(tls_pSer->GetCurBufSize());
-
-	puts("3");
 }
 
 void CProcessPacket::fnMovePlayer_Req(CPlayer* _pPlayer, DWORD dwSize, char* _pRecvedMsg)
@@ -209,8 +201,8 @@ void CProcessPacket::fnMoveServer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRec
 	tls_pSer->StartSerialize();
 	tls_pSer->Serialize(static_cast<packet_type>(PacketType::MoveServer_Not1));
 	tls_pSer->Serialize(nextServerID);
-	tls_pSer->Serialize(pPlayer->GetKey());
 	tls_pSer->Serialize(IocpGameServer()->m_serverID);
+	tls_pSer->Serialize(pPlayer->GetKey());
 	// 캐릭터정보들 직렬화
 
 	CConnection* pCon = IocpGameServer()->GetLoginServerConn();
@@ -221,12 +213,18 @@ void CProcessPacket::fnMoveServer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRec
 		return;
 	tls_pSer->CopyBuffer(pBuffer);
 	pCon->SendPost(tls_pSer->GetCurBufSize());
-
-	puts("1");
 }
+
 
 void CProcessPacket::fnPlayerInfoAndMoveLevel_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
+	unsigned int nextPlayerKey = 0;
+	tls_pSer->StartDeserialize(pRecvedMsg);
+	tls_pSer->Deserialize(nextPlayerKey);
+	pPlayer->SetPKey(nextPlayerKey);
+
+	fnStartLogin_Not(pPlayer, dwSize, pRecvedMsg);
+
 	tls_pSer->StartSerialize();
 	tls_pSer->Serialize(static_cast<packet_type>(PacketType::PlayerInfoAndMoveLevel_Res));
 

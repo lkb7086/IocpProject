@@ -157,6 +157,7 @@ public:
 	std::array<Item, MAX_INVEN_SLOT> m_arrItem;
 	bool m_isHost;
 	bool m_isInfection;
+	bool m_isMoveServer;
 
 	Color m_color;
 private:

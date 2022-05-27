@@ -17,6 +17,7 @@ void CPlayer::InitPlayer()
 {
 	m_isConfirm = false;
 	m_key = 0;
+	m_isMoveServer = false;
 
 	m_pPrevMoveNode = nullptr;
 	InitPrevMoveNode();

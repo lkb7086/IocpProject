@@ -43,9 +43,11 @@ bool CPlayerManager::AddPlayer(CPlayer* pPlayer)
 		//LOG(LOG_ERROR_NORMAL, "SYSTEM | CPlayerManager::AddPlayer() | PKey(%d)는 이미 m_mapPlayer에 있습니다.", pPlayer->GetKey());
 		return false;
 	}
-	pPlayer->SetPKey(GeneratePrivateKey());
 
+	if (pPlayer->GetKey() == 0)
+		pPlayer->SetPKey(GeneratePrivateKey());
 	m_mapPlayer.insert(pair< DWORD, CPlayer* >(pPlayer->GetKey(), pPlayer));
+
 	return true;
 }
 bool CPlayerManager::RemovePlayer(CPlayer* pPlayer)

@@ -42,7 +42,7 @@ public:
 	static void fnMoveServer_Not1(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnMoveServer_Not2(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	
-
+	
 
 
 

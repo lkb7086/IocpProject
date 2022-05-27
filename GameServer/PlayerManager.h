@@ -74,7 +74,16 @@ public:
 			pWorldPlayer->SendPost(packet.length);
 		}
 	}
+	
 
+	void ErasePlayerInfo(unsigned int playerKey)
+	{
+		auto it = m_mapPlayerInfo.find(playerKey);
+		if (it != m_mapPlayerInfo.end())
+		{
+			m_mapPlayerInfo.erase(playerKey);
+		}
+	}
 
 
 	// 유틸리티
