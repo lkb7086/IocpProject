@@ -76,3 +76,16 @@ void CProcessPacket::fnImServer_Not(CConnection* pConn, DWORD dwSize, char* pRec
 	ConnectionManager()->AddServerCon(((stUtil_Char*)pRecvedMsg)->nChar, pConn);
 }
 
+
+
+void CProcessPacket::fnNosql_Not(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
+{
+	CConnection* pCon = IocpLoginServer()->GetNoSQLServerConn();
+	if (pCon == nullptr)
+		return;
+	char* pBuf = pCon->PrepareSendPacket(dwSize);
+	if (pBuf == nullptr)
+		return;
+	memcpy_s(pBuf, dwSize, pRecvedMsg, dwSize);
+	pCon->SendPost(dwSize);
+}

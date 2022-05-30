@@ -11,6 +11,7 @@ CIocpLoginServer::CIocpLoginServer() : m_nPrivateKey(0)
 	m_pTickThread = new(nothrow) CTickThread;
 	if (nullptr == m_pTickThread) return;
 	m_pGameServerConn = nullptr;
+	m_pNoSQLServerConn = nullptr;
 	InitProcessFunc();
 }
 
@@ -54,6 +55,10 @@ void CIocpLoginServer::InitProcessFunc()
 	//un_mapPakect.insert(PACKET_PAIR(CL_DeleteUnit_Rq, CProcessPacket::fnDeleteUnitRq));
 
 	un_mapPakect.insert(PACKET_PAIR(PacketType::ImServer_Not, CProcessPacket::fnImServer_Not));
+
+
+
+	un_mapPakect.insert(PACKET_PAIR(PacketType::Nosql_Not, CProcessPacket::fnNosql_Not));
 }
 
 void CIocpLoginServer::OnInitIocpServer(){}
@@ -204,9 +209,9 @@ bool CIocpLoginServer::ConnectToGameServer()
 	char		szIp[30] = "127.0.0.1";
 
 	//접속할 DBAgent에 대한 정보를 얻어온다.
-	if (-1 == (initConfig.nSendBufCnt = 2))
+	if (-1 == (initConfig.nSendBufCnt = 20))
 		return false;
-	if (-1 == (initConfig.nRecvBufCnt = 2))
+	if (-1 == (initConfig.nRecvBufCnt = 10))
 		return false;
 	if (-1 == (initConfig.nSendBufSize = 1024))
 		return false;
@@ -228,4 +233,43 @@ bool CIocpLoginServer::ConnectToGameServer()
 
 	return true;
 
+}
+
+bool CIocpLoginServer::ConnectToNoSQLServer()
+{
+	if (nullptr != m_pNoSQLServerConn)
+	{
+		CIocpServer::CloseConnection(m_pNoSQLServerConn);
+		delete m_pNoSQLServerConn;
+		m_pNoSQLServerConn = nullptr;
+	}
+	m_pNoSQLServerConn = new(nothrow)CConnection;
+	m_pNoSQLServerConn->m_bIsCilent = false;
+
+	INITCONFIG initConfig;
+	char		szIp[30] = "127.0.0.1";
+
+	if (-1 == (initConfig.nSendBufCnt = 40))
+		return false;
+	if (-1 == (initConfig.nRecvBufCnt = 20))
+		return false;
+	if (-1 == (initConfig.nSendBufSize = 4096))
+		return false;
+	if (-1 == (initConfig.nRecvBufSize = 4096))
+		return false;
+
+	if (-1 == (initConfig.nServerPort = 9999))
+		return false;
+
+	m_pNoSQLServerConn->SetConnectionIp(szIp);
+	m_pNoSQLServerConn->CreateConnection(initConfig);
+	if (m_pNoSQLServerConn->ConnectTo(szIp, initConfig.nServerPort) == false)
+	{
+		LOG(LOG_ERROR_LOW, "CIocpGameServer::ConnectToNoSQLServer() | NoSQLServer Connect Failed");
+		return false;
+	}
+	LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::ConnectToNoSQLServer() | NoSQLServer [%d]socket 연결 성공"
+		, m_pNoSQLServerConn->GetSocket());
+
+	return true;
 }

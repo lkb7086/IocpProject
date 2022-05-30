@@ -71,12 +71,7 @@ void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRec
 	//PlayerManager()->GS_CL_LoginPlayerInfo(pPlayer);
 
 
-	///*
-	//if (player.m_bIsDummy)
-	//{
-		player.m_pos = Vector3(CMTRand::GetRand_float(-30.0f, 30.0f), CMTRand::GetRand_float(-30.0f, 30.0f), CMTRand::GetRand_float(-30.0f, 30.0f));
-	//}
-	//*/
+	PlayerManager()->InitPlayerInfo(player);
 
 
 	///*
@@ -204,6 +199,16 @@ void CProcessPacket::fnMoveServer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRec
 	tls_pSer->Serialize(IocpGameServer()->m_serverID);
 	tls_pSer->Serialize(pPlayer->GetKey());
 	// 캐릭터정보들 직렬화
+	tls_pSer->Serialize(pPlayer->GetUID());
+	tls_pSer->Serialize(pPlayer->GetID());
+	tls_pSer->Serialize(pPlayer->GetNickName());
+	tls_pSer->Serialize(pPlayer->GetSpecies());
+	tls_pSer->Serialize(pPlayer->GetGender());
+	tls_pSer->Serialize(pPlayer->GetHeight());
+	tls_pSer->Serialize(pPlayer->GetWidth());
+
+	
+
 
 	CConnection* pCon = IocpGameServer()->GetLoginServerConn();
 	if (nullptr == pCon)

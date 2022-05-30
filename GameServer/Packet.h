@@ -67,7 +67,7 @@ enum class PacketType : packet_type
 	StartGame_Req,
 
 
-
+	Nosql_Not = 0xFFFF
 };
 
 

@@ -656,9 +656,9 @@ bool CIocpGameServer::ConnectToNoSQLServer()
 	INITCONFIG initConfig;
 	char		szIp[30] = "127.0.0.1";
 
-	if (-1 == (initConfig.nSendBufCnt = 10))
+	if (-1 == (initConfig.nSendBufCnt = 40))
 		return false;
-	if (-1 == (initConfig.nRecvBufCnt = 40))
+	if (-1 == (initConfig.nRecvBufCnt = 20))
 		return false;
 	if (-1 == (initConfig.nSendBufSize = 4096))
 		return false;
@@ -745,5 +745,21 @@ void CIocpGameServer::StartLobby_Req(CPlayer* pPlayer, char* pRecvedMsg)
 		char* p = m_ringBuffer.ForwardMark(tls_pSer->GetCurBufSize());
 		tls_pSer->CopyBuffer(p);
 		DatabaseManager()->PushDBQueue(pPlayer, tls_pSer->GetCurBufSize(), p);
+
+		// nosql Å×½ºÆ®
+		tls_pSer->StartSerialize();
+		tls_pSer->Serialize(static_cast<packet_type>(PacketType::Nosql_Not));
+		tls_pSer->Serialize((unsigned short)1);
+		tls_pSer->Serialize(szID);
+		tls_pSer->Serialize(10);
+
+		CConnection* pCon = GetLoginServerConn();
+		if (pCon == nullptr)
+			return;
+		char* pBuf = pCon->PrepareSendPacket(tls_pSer->GetCurBufSize());
+		if (pBuf == nullptr)
+			return;
+		tls_pSer->CopyBuffer(pBuf);
+		pCon->SendPost(tls_pSer->GetCurBufSize());
 	}
 }

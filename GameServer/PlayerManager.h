@@ -5,7 +5,13 @@
 
 struct PlayerInfo
 {
-	int dummy;
+	unsigned long long uid;
+	char id[MAX_ID_LENGTH];
+	char nickName[MAX_NICKNAME_LENGTH];
+	char species;
+	char gender;
+	char height;
+	char width;
 
 	PlayerInfo()
 	{
@@ -92,6 +98,25 @@ public:
 	void Send_TCP_WithPacketTypeToPlayer(CPlayer* _pPlayer, PacketType _eType); // 한 플레이어에게 패킷타입으로 보내는 함수
 
 
+	void InitPlayerInfo(CPlayer& player)
+	{
+		auto it = m_mapPlayerInfo.find(player.GetKey());
+		if (it == m_mapPlayerInfo.end())
+			return;
+
+	    PlayerInfo& playerInfo = it->second;
+		player.SetUID(playerInfo.uid);
+		player.SetID(playerInfo.id);
+		player.SetNickName(playerInfo.nickName);
+		player.SetSpecies (playerInfo.species);
+		player.SetGender(playerInfo.gender);
+		player.SetHeight(playerInfo.height);
+		player.SetWidth(playerInfo.width);
+		//printf("%u %s %s %d %d %d %d\n", playerInfo.uid, playerInfo.id, playerInfo.nickName, playerInfo.species, playerInfo.gender, playerInfo.height, playerInfo.width);
+		player.m_pos = Vector3(CMTRand::GetRand_float(-30.0f, 30.0f), CMTRand::GetRand_float(-30.0f, 30.0f), CMTRand::GetRand_float(-30.0f, 30.0f));
+
+		m_mapPlayerInfo.erase(player.GetKey());
+	}
 
 	unsigned int MoveServer_Not1(char* pMsg);
 

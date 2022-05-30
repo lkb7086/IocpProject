@@ -26,4 +26,6 @@ public:
 
 
 	static void fnImServer_Not(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
+
+	static void fnNosql_Not(CConnection* pConn, DWORD dwSize, char* pRecvedMsg);
 };

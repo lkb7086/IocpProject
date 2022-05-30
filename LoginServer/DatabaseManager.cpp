@@ -64,9 +64,11 @@ void CDatabaseManager::ConfirmID_Req(CConnection* pConnection, char* pRecvedMsg)
 	m_pSerializer->Deserialize(szPass, sizeof(szPass));
 
 	// sql인젝션 특수문자 들어가있으면
-	char* pSearch = strchr(szID, ';');
-	if (pSearch != nullptr)
-		return;
+	char* pSearch = strchr(szID, ';'); if (pSearch != nullptr) return;
+	pSearch = strchr(szID, '"'); if (pSearch != nullptr) return;
+	pSearch = strchr(szID, '/'); if (pSearch != nullptr) return;
+	pSearch = strchr(szID, '='); if (pSearch != nullptr) return;
+
 
 	CSHA512 hash;
 	const string& hash2 = hash.sha512(szPass);
@@ -79,7 +81,7 @@ void CDatabaseManager::ConfirmID_Req(CConnection* pConnection, char* pRecvedMsg)
 	if (0 != state)
 	{
 		LOG(LOG_INFO_LOW, "SYSTEM | CDatabaseManager::ConfirmID_Rq() | mysql_query() 에러: %s", mysql_error(m_pConnection));
-		result = 1;
+		return;
 	}
 
 	MYSQL_RES* pResult = nullptr;
@@ -203,7 +205,7 @@ void CDatabaseManager::JoinID_Req(CConnection* pConnection, char* pRecvedMsg)
 		if (0 != state)
 		{
 			LOG(LOG_INFO_LOW, "SYSTEM | CDatabaseManager::JoinID_Req() | 2 mysql_query() 에러: %s", mysql_error(m_pConnection));
-			result = 2;
+			return;
 		}
 	}
 	else

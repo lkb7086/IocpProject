@@ -126,12 +126,27 @@ void CPlayerManager::Send_TCP_WithPacketTypeToPlayer(CPlayer* _pPlayer, PacketTy
 
 unsigned int CPlayerManager::MoveServer_Not1(char* pMsg)
 {
-	char nextServerID = -1; char prevServerID = -1;
-	unsigned int key = GeneratePrivateKey();
+	char nextServerID = -1; char prevServerID = -1; unsigned int oldKey = 0;
 	PlayerInfo playerInfo;
-	tls_pSer->StartDeserialize(pMsg);
+	unsigned long long uid = 0xFFFFFFFFFFFFFFFF; char id[MAX_ID_LENGTH]; char name[MAX_NICKNAME_LENGTH];
+	char species = -1; char gender = -1; char height = -1; char width = -1;
 
-	
-	m_mapPlayerInfo.insert(pair<unsigned int, PlayerInfo>(key, playerInfo));
+	tls_pSer->StartDeserialize(pMsg);
+	tls_pSer->Deserialize(nextServerID);
+	tls_pSer->Deserialize(prevServerID);
+	tls_pSer->Deserialize(oldKey);
+
+	tls_pSer->Deserialize(playerInfo.uid);
+	tls_pSer->Deserialize(playerInfo.id, sizeof(playerInfo.id));
+	tls_pSer->Deserialize(playerInfo.nickName, sizeof(playerInfo.nickName));
+	tls_pSer->Deserialize(playerInfo.species);
+	tls_pSer->Deserialize(playerInfo.gender);
+	tls_pSer->Deserialize(playerInfo.height);
+	tls_pSer->Deserialize(playerInfo.width);
+
+
+	unsigned int key = GeneratePrivateKey();
+	if(m_mapPlayerInfo.find(key) == m_mapPlayerInfo.end())
+		m_mapPlayerInfo.insert(pair<unsigned int, PlayerInfo>(key, playerInfo));
 	return key;
 }

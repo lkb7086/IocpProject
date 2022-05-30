@@ -32,8 +32,10 @@ public:
 	void			InitProcessFunc();
 
 	CConnection*	GetGameServerConn() { return m_pGameServerConn; }
+	inline CConnection* GetNoSQLServerConn() { return m_pNoSQLServerConn; }
 
 	bool ConnectToGameServer();
+	bool			ConnectToNoSQLServer();
 
 	void CalcXor(char *packet, int packetOffset, DWORD packetLen)
 	{
@@ -55,6 +57,7 @@ public:
 
 private:
 	CConnection*		m_pGameServerConn;
+	CConnection*		m_pNoSQLServerConn;
 
 	CTickThread*		m_pTickThread;
 
