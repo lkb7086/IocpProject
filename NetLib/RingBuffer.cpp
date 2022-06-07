@@ -126,16 +126,16 @@ void CRingBuffer::ReleaseBuffer(int nReleaseSize) // danger: thread safe x
 	//InterlockedExchangeAdd((LPLONG)&m_nUsedBufferSize, -nReleaseSize);
 	m_nUsedBufferSize -= nReleaseSize;
 	//printf("ReleaseBuffer: %d / Who: %p\n", m_nUsedBufferSize, this);
-	if (0 > m_nUsedBufferSize || 450000 < m_nUsedBufferSize)
-		LOG(LOG_ERROR_LOW, "SYSTEM | CRingBuffer::ReleaseBuffer() | m_nUsedBufferSize %d / Who: %p", m_nUsedBufferSize, this);
+	//if (0 > m_nUsedBufferSize || 450000 < m_nUsedBufferSize)
+		//LOG(LOG_ERROR_LOW, "SYSTEM | CRingBuffer::ReleaseBuffer() | m_nUsedBufferSize %d / Who: %p", m_nUsedBufferSize, this);
 }
 void CRingBuffer::ReleaseRecvBuffer(int nReleaseSize)
 {
 	CMonitor::Owner lock(m_csRingBuffer);
 	//InterlockedExchangeAdd((LPLONG)&m_nUsedBufferSize, -nReleaseSize);
 	m_nUsedBufferSize -= nReleaseSize;
-	if (0 > m_nUsedBufferSize || 500 < m_nUsedBufferSize)
-		LOG(LOG_ERROR_LOW, "SYSTEM | CRingBuffer::ReleaseRecvBuffer() | m_nUsedBufferSize %d / Who: %p", m_nUsedBufferSize, this);
+	//if (0 > m_nUsedBufferSize || 500 < m_nUsedBufferSize)
+		//LOG(LOG_ERROR_LOW, "SYSTEM | CRingBuffer::ReleaseRecvBuffer() | m_nUsedBufferSize %d / Who: %p", m_nUsedBufferSize, this);
 }
 
 //사용된 버퍼량 설정, 이것을 하는 이유는 SendPost()함수가 멀티 쓰레드에서 돌아가기때문에

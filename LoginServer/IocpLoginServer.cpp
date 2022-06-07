@@ -43,16 +43,6 @@ void CIocpLoginServer::InitProcessFunc()
 	un_mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Not1, CProcessPacket::fnMoveServer_Not1));
 	un_mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Not2, CProcessPacket::fnMoveServer_Not2));
 
-	
-
-	//un_mapPakect.insert(PACKET_PAIR(CL_LS_ConfirmID_Rq, CProcessPacket::fnConfirmID_Rq));
-	//un_mapPakect.insert(PACKET_PAIR(CL_LS_SelectUnit_Rq, CProcessPacket::fnSelectUnit_Rq));
-	//un_mapPakect.insert(PACKET_PAIR(GS_CL_SelectUnit_Aq, CProcessPacket::fnSelectUnit_Aq));
-	//un_mapPakect.insert(PACKET_PAIR(GS_SV_LogoutPlayer_Cn, CProcessPacket::fnLogoutPlayer_Cn));
-
-	//GS_CL_SelectUnit_Aq  ((CPlayer*)pConnection)->SetIsConfirm(true);*/
-	//un_mapPakect.insert(PACKET_PAIR(CL_CreateUnit_Rq, CProcessPacket::fnCreateUnitRq));
-	//un_mapPakect.insert(PACKET_PAIR(CL_DeleteUnit_Rq, CProcessPacket::fnDeleteUnitRq));
 
 	un_mapPakect.insert(PACKET_PAIR(PacketType::ImServer_Not, CProcessPacket::fnImServer_Not));
 

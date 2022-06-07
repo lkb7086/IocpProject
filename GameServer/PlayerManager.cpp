@@ -136,7 +136,6 @@ unsigned int CPlayerManager::MoveServer_Not1(char* pMsg)
 	tls_pSer->Deserialize(prevServerID);
 	tls_pSer->Deserialize(oldKey);
 
-	tls_pSer->Deserialize(playerInfo.uid);
 	tls_pSer->Deserialize(playerInfo.id, sizeof(playerInfo.id));
 	tls_pSer->Deserialize(playerInfo.nickName, sizeof(playerInfo.nickName));
 	tls_pSer->Deserialize(playerInfo.species);

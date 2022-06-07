@@ -74,7 +74,7 @@ void CDatabaseManager::ConfirmID_Req(CConnection* pConnection, char* pRecvedMsg)
 	const string& hash2 = hash.sha512(szPass);
 
 	char query[256]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "select serverid from user where id = '%s' and pass = '%s'", szID, hash2.c_str());
+	_snprintf_s(query, _countof(query), _TRUNCATE, "select serverid from colorverse.user where id = '%s' and pass = '%s'", szID, hash2.c_str());
 
 	int	state = -1;
 	state = mysql_query(m_pConnection, query);
@@ -177,7 +177,7 @@ void CDatabaseManager::JoinID_Req(CConnection* pConnection, char* pRecvedMsg)
 		return;
 
 	char query[256]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "select id from user where id = '%s'", szID);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "select id from colorverse.user where id = '%s'", szID);
 
 	int	state = -1;
 	state = mysql_query(m_pConnection, query);
@@ -200,7 +200,7 @@ void CDatabaseManager::JoinID_Req(CConnection* pConnection, char* pRecvedMsg)
 
 		// 겹치는 아이디가 없으니 insert
 		memset(query, 0, sizeof(query));
-		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO user (id, pass, date) VALUES ('%s', '%s', now());", szID, hash2.c_str());
+		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO colorverse.user (id, pass, date) VALUES ('%s', '%s', now());", szID, hash2.c_str());
 		state = mysql_query(m_pConnection, query);
 		if (0 != state)
 		{
@@ -266,7 +266,7 @@ void CDatabaseManager::LogoutPlayerID_Not(char* pRecvedMsg)
 	EraseID(szID);
 
 	char query[256]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "UPDATE user SET serverid = %d WHERE id = '%s'", serverID, szID);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "UPDATE colorverse.user SET serverid = %d WHERE id = '%s'", serverID, szID);
 
 	int	state = -1;
 	state = mysql_query(m_pConnection, query);

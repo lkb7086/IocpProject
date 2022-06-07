@@ -27,9 +27,9 @@ void CProcessPacket::fnSendToAreaPlayer_RecvBufferFromServer(CPlayer* pPlayer, D
 }
 
 
-void CProcessPacket::fnConfirmID_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+void CProcessPacket::fnConfirmIDGameServer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
-    IocpGameServer()->ConfirmID_Not(pPlayer, pRecvedMsg);
+    IocpGameServer()->ConfirmIDGameServer_Req(pPlayer, pRecvedMsg);
 
 }
 
@@ -120,7 +120,7 @@ void CProcessPacket::fnMoveServer_Not1(CPlayer* pPlayer, DWORD dwSize, char* pRe
 	tls_pSer->Serialize(nextServerID);
 	tls_pSer->Serialize(playerKey);
 	tls_pSer->Serialize(nextKey);
-
+	
 
 	CConnection* pCon = IocpGameServer()->GetLoginServerConn();
 	if (pCon == nullptr)
@@ -198,8 +198,8 @@ void CProcessPacket::fnMoveServer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRec
 	tls_pSer->Serialize(nextServerID);
 	tls_pSer->Serialize(IocpGameServer()->m_serverID);
 	tls_pSer->Serialize(pPlayer->GetKey());
+
 	// 캐릭터정보들 직렬화
-	tls_pSer->Serialize(pPlayer->GetUID());
 	tls_pSer->Serialize(pPlayer->GetID());
 	tls_pSer->Serialize(pPlayer->GetNickName());
 	tls_pSer->Serialize(pPlayer->GetSpecies());

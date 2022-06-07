@@ -62,7 +62,7 @@ CIocpGameServer::~CIocpGameServer()
 
 void CIocpGameServer::InitProcessFunc()
 {
-	mapPakect.insert(PACKET_PAIR(PacketType::ConfirmIDGameServer_Req, CProcessPacket::fnConfirmID_Not));
+	mapPakect.insert(PACKET_PAIR(PacketType::ConfirmIDGameServer_Req, CProcessPacket::fnConfirmIDGameServer_Req));
 	mapPakect.insert(PACKET_PAIR(PacketType::StartLobby_Req, CProcessPacket::fnStartLobby_Req));
 	mapPakect.insert(PACKET_PAIR(PacketType::CreateCharacter_Req, CProcessPacket::fnCreateCharacter_Req));
 	mapPakect.insert(PACKET_PAIR(PacketType::DeleteCharacter_Req, CProcessPacket::fnDeleteCharacter_Req));
@@ -681,7 +681,7 @@ bool CIocpGameServer::ConnectToNoSQLServer()
 	return true;
 }
 
-void CIocpGameServer::ConfirmID_Not(CPlayer* pPlayer, char* pRecvedMsg)
+void CIocpGameServer::ConfirmIDGameServer_Req(CPlayer* pPlayer, char* pRecvedMsg)
 {
 	unsigned char result = 0;
 	unsigned long long key = 0;

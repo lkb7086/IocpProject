@@ -29,6 +29,65 @@ int _tmain(int argc, _TCHAR* argv[])
 	if (nullptr == tls_pEngine)
 		return 0;
 
+	/*
+	string strBuf;
+	fstream fs;
+	fs.open("D:/Unreal/Config/DataTable/DT_Common.csv", ios::in);
+	if (fs.is_open())
+	{
+		//while (getline(fs, strBuf).eof())
+		{
+			//fs.clear();
+		}
+
+		while (!fs.eof())
+		{
+			fs.clear();
+			//if (getline(fs, strBuf, ',').eof())
+			//{
+				//cout << endl;
+			//}
+			//else
+			if (getline(fs, strBuf, ',').eof())
+			{
+				cout << strBuf;
+			}
+			//if(strBuf.find_first_not_of("0123456789") == string::npos)
+		}
+
+		fs.close();
+	}
+	*/
+
+	string strBuf;
+	fstream fs;
+	fs.open("D:/Unreal/Config/DataTable/DT_PlayerStat.csv", ios::in);
+	if (fs.is_open())
+	{
+		while (getline(fs, strBuf).eof())
+		{
+			fs.clear();
+		}
+
+		while (!fs.eof())
+		{
+			fs.clear();
+			//if (getline(fs, strBuf, ',').eof())
+			//{
+				//cout << endl;
+			//}
+			//else
+			if (getline(fs, strBuf, ','))
+			{
+				cout << strBuf;
+			}
+			//if(strBuf.find_first_not_of("0123456789") == string::npos)
+		}
+
+		fs.close();
+	}
+
+
 
 	/*
 	for (size_t i = 0; i < 100; i++)

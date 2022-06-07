@@ -114,7 +114,7 @@ bool CAreaManager::PrepareUpdateArea(CPlayer* pPlayer, int newAreaIndex)
 	bRet = AddPlayerToArea(pPlayer, nNewArea);
 	if (false == bRet)
 	{
-		printf("CAreaManager::PrepareUpdateArea() | if (false == bRet) 2\n");
+		//printf("CAreaManager::PrepareUpdateArea() | if (false == bRet) 2\n");
 		//IocpGameServer()->CloseConnection(pPlayer);
 		return false;
 	}
@@ -131,7 +131,7 @@ void CAreaManager::UpdateActiveAreas(CPlayer* pPlayer)
 	int byArea = pPlayer->GetArea();
 	if (0 > byArea || MAX_AREA <= byArea)
 	{
-		printf("UpdateActiveAreas fail %d\n", byArea);
+		//printf("UpdateActiveAreas fail %d\n", byArea);
 		return;
 	}
 

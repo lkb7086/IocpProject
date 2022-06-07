@@ -80,7 +80,7 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 
 	// 디비에서 캐릭터들을 참조해서 뽑아내서 보내준다
 	char query[256]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "select * from coloverse.character where id = '%s'", szID);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "select * from colorverse.character where user_id = '%s'", szID);
 
 	int state = mysql_query(m_pConnection, query);
 
@@ -112,10 +112,10 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 		int index = 0;
 		for (int i = 0; i < state; i++)
 		{
-			// uid(bigint) id(varchar45) name(varchar45) index(tinyint) species(tinyint) gender(tinyint)
-			index++;
-			index++;
+			// name id index(tinyint) species(tinyint) gender(tinyint)
 			tls_pSer->Serialize(row[index++]);
+			index++;
+			//tls_pSer->Serialize(row[index++]);
 			tls_pSer->Serialize((char)atoi(row[index++]));
 			tls_pSer->Serialize((char)atoi(row[index++]));
 			tls_pSer->Serialize((char)atoi(row[index++]));
@@ -156,7 +156,7 @@ void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 
 
 	char query[128]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT name FROM character WHERE name = '%s'", name);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT name FROM colorverse.character WHERE name = '%s' and user_id = '%s'", name, info.pPlayer->GetID());
 
 	int state = mysql_query(m_pConnection, query);
 
@@ -174,7 +174,7 @@ void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 	tls_pSer->Serialize(static_cast<packet_type>(PacketType::CreateCharacter_Res));
 
 	state = mysql_num_rows(pResult);
-	if (0 == state)
+	if (0 != state)
 	{
 		// 캐릭터가 있으면 실패
 		result = 1;
@@ -184,7 +184,7 @@ void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 	{
 		// 캐릭터가 없으면 INSERT
 		memset(query, 0, sizeof(query));
-		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO character VALUES (NULL, '%s', '%s', %d, %d, %d, %f, %f)", info.pPlayer->GetID(), name, index, species, gender, height, width);
+		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO character VALUES ('%s', '%s', %d, %d, %d, %f, %f)", name, info.pPlayer->GetID(), index, species, gender, height, width);
 		state = mysql_query(m_pConnection, query);
 		if (0 != state)
 		{
@@ -217,7 +217,7 @@ void CDatabaseManager::DeleteCharacter_Req(const stPlayerInfo& info)
 	tls_pSer->Deserialize(name, sizeof(name));
 
 	char query[128]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT name FROM character WHERE name = '%s'", name);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT name FROM colorverse.character WHERE name = '%s' and user_id = '%s'", name, info.pPlayer->GetID());
 
 	int state = mysql_query(m_pConnection, query);
 
@@ -273,7 +273,7 @@ void CDatabaseManager::StartGame_Req(const stPlayerInfo& info)
 	tls_pSer->Deserialize(name, sizeof(name));
 
 	char query[128]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT * FROM coloverse.character WHERE name = '%s'", name);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT * FROM colorverse.character WHERE name = '%s' and user_id = '%s'", name, info.pPlayer->GetID());
 
 	int state = mysql_query(m_pConnection, query);
 
@@ -307,9 +307,8 @@ void CDatabaseManager::StartGame_Req(const stPlayerInfo& info)
 			return;
 
 		int index = 0;
-		unsigned long long uid = atoll(row[index++]);
-		index++;
 		string nickName = row[index++];
+		index++;
 		char characterIndex = atoi(row[index++]);
 		char species = atoi(row[index++]);
 		char gender = atoi(row[index++]);
@@ -317,7 +316,6 @@ void CDatabaseManager::StartGame_Req(const stPlayerInfo& info)
 		float width = atof(row[index]);
 
 		// 아직 틱스레드가 player 메모리를 안건드릴때라 여기서 함
-		info.pPlayer->SetUID(uid);
 		info.pPlayer->SetNickName(nickName.c_str());
 		info.pPlayer->SetCharacterIndex(characterIndex);
 		info.pPlayer->SetSpecies(species);

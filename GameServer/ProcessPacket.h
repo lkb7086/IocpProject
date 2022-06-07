@@ -20,7 +20,7 @@ public:
 
 
 
-	static void fnConfirmID_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg); // 로그인서버 <-> 게임서버
+	static void fnConfirmIDGameServer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg); // 로그인서버 <-> 게임서버
 	static void fnStartLobby_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnCreateCharacter_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnDeleteCharacter_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);

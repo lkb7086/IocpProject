@@ -67,7 +67,7 @@ public:
 	inline CConnection* GetNoSQLServerConn() { return m_pNoSQLServerConn; }
 
 
-	void ConfirmID_Not(CPlayer* pPlayer, char* pRecvedMsg);
+	void ConfirmIDGameServer_Req(CPlayer* pPlayer, char* pRecvedMsg);
 	void StartLobby_Req(CPlayer* pPlayer, char* pRecvedMsg);
 
 
