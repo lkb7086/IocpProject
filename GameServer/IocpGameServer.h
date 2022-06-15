@@ -68,43 +68,7 @@ public:
 
 
 	void ConfirmIDGameServer_Req(CPlayer* pPlayer, char* pRecvedMsg);
-	void StartLobby_Req(CPlayer* pPlayer, char* pRecvedMsg);
-
-
-	void CheckKeepAliveTick(DWORD dwServerTick)
-	{
-		CMonitorSRW::OwnerSRW lock(m_srwConn, TryLockShared);
-		for (auto it = m_setConn.begin(); m_setConn.end() != it; ++it)
-		{
-			CConnection* lpConnection = it->second;
-			if (nullptr == lpConnection) { puts("CIocpGameServer::CheckKeepAliveTick nullptr"); continue; }
-			
-			if (INVALID_SOCKET == lpConnection->GetSocket() && lpConnection->m_bIsClosed)
-			{
-				LOG(LOG_ERROR_LOW, "SYSTEM | CIocpGameServer::CheckKeepAliveTick() | 좀비 컨테이너 %p, %d, %d, %d, %d",
-					lpConnection,
-					lpConnection->GetAcceptIoRefCount(),
-					lpConnection->GetRecvIoRefCount(),
-					lpConnection->GetSendIoRefCount(),
-					lpConnection->m_bIsClosed);
-
-				lpConnection->DecrementAcceptIoRefCount();
-				lpConnection->DecrementRecvIoRefCount();
-				lpConnection->DecrementSendIoRefCount();
-				InterlockedExchange((LPLONG)&lpConnection->m_bIsClosed, FALSE);
-				CIocpServer::CloseConnection(lpConnection);
-				continue;
-			}
-
-			if (((CPlayer*)lpConnection)->m_bIsDummy)
-				continue;
-			if ((GetServerTick() - lpConnection->GetKeepAliveTick()) >= KEEPALIVE_TICK)
-			{
-				LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::CheckKeepAliveTick() | 플레이어에게 일정 시간동안 패킷이 오지 않음");
-				CIocpServer::CloseConnection(lpConnection);
-			}
-		}
-	}
+	void StartLobby_Req(CPlayer* pPlayer, char* pRecvedMsg);	
 
 	void CalcXor(char *packet, int packetOffset, DWORD packetLen)
 	{
@@ -141,7 +105,8 @@ private:
 	CConnection*		m_pLoginServerConn;
 	CConnection*		m_pNoSQLServerConn;
 
-	CMonitorSRW m_srwConn;
+
+	CMonitor m_csAccept;
 
 	//////////////////////////////////////////////////////////
 	typedef void(*funcProcessPacket)(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
@@ -153,7 +118,7 @@ private:
 	////////////////////////////////////////////////////////////////
 	concurrent_unordered_map<int, CConnection*> m_setConn;
 	////////////////////////////////////////////////////////////////
-	set<unsigned long long> m_mapSERVER;
+	map<unsigned long long, string> m_mapSERVER;
 };
 CREATE_FUNCTION(CIocpGameServer, IocpGameServer);
 

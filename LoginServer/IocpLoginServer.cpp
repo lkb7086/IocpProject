@@ -40,13 +40,13 @@ void CIocpLoginServer::InitProcessFunc()
 
 	un_mapPakect.insert(PACKET_PAIR(PacketType::LogoutPlayerID_Not, CProcessPacket::fnLogoutPlayerID_Not));
 
+
+
 	un_mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Not1, CProcessPacket::fnMoveServer_Not1));
 	un_mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Not2, CProcessPacket::fnMoveServer_Not2));
 
 
 	un_mapPakect.insert(PACKET_PAIR(PacketType::ImServer_Not, CProcessPacket::fnImServer_Not));
-
-
 
 	un_mapPakect.insert(PACKET_PAIR(PacketType::Nosql_Not, CProcessPacket::fnNosql_Not));
 }
@@ -162,10 +162,10 @@ bool CIocpLoginServer::ServerStart()
 	// 서버 정보 초기화
 	INITCONFIG InitConfig;
 	InitConfig.nServerPort = 9082;
-	InitConfig.nRecvBufCnt = 10;
+	InitConfig.nRecvBufCnt = 20;
 	InitConfig.nRecvBufSize = 1024;
-	InitConfig.nProcessPacketCnt = 3000;
-	InitConfig.nSendBufCnt = 20;
+	InitConfig.nProcessPacketCnt = 10000;
+	InitConfig.nSendBufCnt = 40;
 	InitConfig.nSendBufSize = 1024;
 	InitConfig.nWorkerThreadCnt = (4 * 2) + 1;
 	InitConfig.nProcessThreadCnt = 1;

@@ -61,7 +61,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	string strBuf;
 	fstream fs;
-	fs.open("D:/Unreal/Config/DataTable/DT_PlayerStat.csv", ios::in);
+	fs.open("D:/Unreal/Colorverse/Config/DataTable/DT_PlayerStat.csv", ios::in);
 	if (fs.is_open())
 	{
 		while (getline(fs, strBuf).eof())

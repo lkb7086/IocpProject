@@ -212,23 +212,13 @@ void CIocpGameServer::OnClose_IocpServer()
 
 bool CIocpGameServer::OnAccept(CConnection* lpConnection)
 {
+	//CMonitor::Owner lock(m_csAccept);
+
 	//puts("OnAccept");
 
-	
-
-	((CPlayer*)lpConnection)->InitPlayer();
-	((CPlayer*)lpConnection)->m_isAccept = true;
-	lpConnection->SetKeepAliveTick(IocpGameServer()->GetServerTick());
-
-	// 추가
-	auto it = m_setConn.find(lpConnection->GetIndex());
-	if (m_setConn.end() != it)
-	{
-		LOG(LOG_ERROR_LOW, "CIocpGameServer::OnAccept() | Socket[%d]은 SET에 이미 추가되어 있다", lpConnection->GetSocket());
-		CIocpServer::CloseConnection(lpConnection);
-		return true;
-	}
-	m_setConn.insert(pair<int, CConnection*>(lpConnection->GetIndex(), lpConnection));
+	//((CPlayer*)lpConnection)->InitPlayer();
+	//((CPlayer*)lpConnection)->m_isAccept = true;
+	//lpConnection->SetKeepAliveTick(IocpGameServer()->GetServerTick());
 
 	/*
 	// 로그인허락 패킷전송
@@ -353,18 +343,9 @@ void CIocpGameServer::OnPrepareClose(CConnection* lpConnection)
 
 void CIocpGameServer::OnClose(CConnection* lpConnection)
 {
-	CPlayer* pPlayer = static_cast<CPlayer*>(lpConnection);
+	//CMonitor::Owner lock(m_csAccept);
 
-	auto it = m_setConn.find(lpConnection->GetIndex());
-	if (m_setConn.end() == it)
-	{
-		//LOG(LOG_ERROR_LOW, "SYSTEM | CIocpGameServer::OnClose() | m_setConn에 삭제하려는 세션이 없다");
-	}
-	else
-	{
-		CMonitorSRW::OwnerSRW lock(m_srwConn, LockExclusive);
-		m_setConn.unsafe_erase(lpConnection->GetIndex());
-	}
+	CPlayer* pPlayer = static_cast<CPlayer*>(lpConnection);
 
 	if (!lpConnection->m_bIsCilent)
 	{
@@ -694,7 +675,7 @@ void CIocpGameServer::ConfirmIDGameServer_Req(CPlayer* pPlayer, char* pRecvedMsg
 
 	if (m_mapSERVER.end() == m_mapSERVER.find(key))
 	{
-		m_mapSERVER.insert(key);
+		m_mapSERVER.insert(pair<unsigned long long, string>(key, szID));
 
 		CSerializer& ser = *tls_pSer;
 		ser.StartSerialize();
@@ -723,7 +704,7 @@ void CIocpGameServer::StartLobby_Req(CPlayer* pPlayer, char* pRecvedMsg)
 
 	tls_pSer->StartDeserialize(pRecvedMsg);
 	tls_pSer->Deserialize(serverKey);
-	tls_pSer->Deserialize(szID, sizeof(szID));
+	//tls_pSer->Deserialize(szID, sizeof(szID));
 
 	if (m_mapSERVER.find(serverKey) == m_mapSERVER.end())
 	{
@@ -732,15 +713,15 @@ void CIocpGameServer::StartLobby_Req(CPlayer* pPlayer, char* pRecvedMsg)
 	}
 	else
 	{
+		auto it = m_mapSERVER.find(serverKey);
+		pPlayer->SetID((char*)it->second.c_str());
+
 		m_mapSERVER.erase(serverKey);
-
-		pPlayer->SetID(szID);
-
 
 		// DB에서 다수의 캐릭터들을 확인
 		tls_pSer->StartSerialize();
 		tls_pSer->Serialize(static_cast<packet_type>(PacketType::StartLobby_Not));
-		tls_pSer->Serialize(szID);
+		//tls_pSer->Serialize(szID);
 
 		char* p = m_ringBuffer.ForwardMark(tls_pSer->GetCurBufSize());
 		tls_pSer->CopyBuffer(p);
@@ -750,7 +731,7 @@ void CIocpGameServer::StartLobby_Req(CPlayer* pPlayer, char* pRecvedMsg)
 		tls_pSer->StartSerialize();
 		tls_pSer->Serialize(static_cast<packet_type>(PacketType::Nosql_Not));
 		tls_pSer->Serialize((unsigned short)1);
-		tls_pSer->Serialize(szID);
+		tls_pSer->Serialize(pPlayer->GetID());
 		tls_pSer->Serialize(10);
 
 		CConnection* pCon = GetLoginServerConn();

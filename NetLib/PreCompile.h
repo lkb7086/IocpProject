@@ -58,6 +58,7 @@ using namespace concurrency;
 #include "IocpServer.h"
 #include "Serializer.h"
 
+#include "./Utility/RSA.h"
 #include "./Utility/MinidumpHelp.h"
 #include "./Utility/MemoryLeak.h"
 #include "./Utility/Monitoring.h"

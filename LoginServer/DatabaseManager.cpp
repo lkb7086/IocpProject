@@ -1,4 +1,8 @@
 #include "stdafx.h"
+#include "../NetLib/RSA.cpp"
+//#include "../NetLib/RSA.h"
+//#include "../NetLib/Utility/RSA.h"
+
 
 IMPLEMENT_SINGLETON(CDatabaseManager)
 
@@ -53,15 +57,21 @@ void CDatabaseManager::MySql_QuickUpdate()
 {
 }
 
-void CDatabaseManager::ConfirmID_Req(CConnection* pConnection, char* pRecvedMsg)
+void CDatabaseManager::ConfirmID_Req(CConnection* pConnection, DWORD size, char* pRecvedMsg)
 {
 	char szID[MAX_ID_LENGTH]; memset(szID, 0, sizeof(szID));
 	char szPass[MAX_PASS_LENGTH]; memset(szPass, 0, sizeof(szPass));
 	char result = 0;
 
+	//CRSA rsa(pRecvedMsg, size);
+	//rsa.Decrypt();
+
 	m_pSerializer->StartDeserialize(pRecvedMsg);
 	m_pSerializer->Deserialize(szID, sizeof(szID));
 	m_pSerializer->Deserialize(szPass, sizeof(szPass));
+
+	if (strlen(szID) == 0 || strlen(szPass) == 0)
+		return;
 
 	// sql인젝션 특수문자 들어가있으면
 	char* pSearch = strchr(szID, ';'); if (pSearch != nullptr) return;
@@ -168,7 +178,7 @@ void CDatabaseManager::JoinID_Req(CConnection* pConnection, char* pRecvedMsg)
 	m_pSerializer->Deserialize(szPass, sizeof(szPass));
 
 	// 빈 문자열이면
-	if (strcmp(szID, "") == 0)
+	if (strlen(szID) == 0 || strlen(szPass) == 0)
 		return;
 
 	// sql인젝션 특수문자 들어가있으면

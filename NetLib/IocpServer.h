@@ -55,7 +55,7 @@ protected:
 		if (false == m_isProcessThreadUP)
 			SetEvent(m_hProcessThreadEvent);
 	}
-
+	
 	bool				m_isGameServer;
 	
 private:

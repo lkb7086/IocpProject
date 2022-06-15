@@ -75,12 +75,12 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 {
 	char szID[MAX_ID_LENGTH]; memset(szID, 0, sizeof(szID));
 
-	tls_pSer->StartDeserialize(info.pMsg);
-	tls_pSer->Deserialize(szID, sizeof(szID));
+	//tls_pSer->StartDeserialize(info.pMsg);
+	//tls_pSer->Deserialize(szID, sizeof(szID));
 
 	// 디비에서 캐릭터들을 참조해서 뽑아내서 보내준다
 	char query[256]; memset(query, 0, sizeof(query));
-	_snprintf_s(query, _countof(query), _TRUNCATE, "select * from colorverse.character where user_id = '%s'", szID);
+	_snprintf_s(query, _countof(query), _TRUNCATE, "select * from colorverse.character where user_id = '%s'", info.pPlayer->GetID());
 
 	int state = mysql_query(m_pConnection, query);
 
@@ -112,12 +112,8 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 		int index = 0;
 		for (int i = 0; i < state; i++)
 		{
-			// name id index(tinyint) species(tinyint) gender(tinyint)
 			tls_pSer->Serialize(row[index++]);
 			index++;
-			//tls_pSer->Serialize(row[index++]);
-			tls_pSer->Serialize((char)atoi(row[index++]));
-			tls_pSer->Serialize((char)atoi(row[index++]));
 			tls_pSer->Serialize((char)atoi(row[index++]));
 			tls_pSer->Serialize((float)atof(row[index++]));
 			tls_pSer->Serialize((float)atof(row[index]));
@@ -138,22 +134,19 @@ void CDatabaseManager::StartLobby_Not(const stPlayerInfo& info)
 void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 {
 	char name[MAX_NICKNAME_LENGTH]; memset(name, 0, sizeof(name));
-	char index = 0;
-	char species = 0;
 	char gender = 0;
 	char result = 0;
 	float height = 0.0f;
-	float width = 0.0f;
+	float weight = 0.0f;
 
 	tls_pSer->StartDeserialize(info.pMsg);
 	tls_pSer->Deserialize(name, sizeof(name));
-	tls_pSer->Deserialize(index);
-	tls_pSer->Deserialize(species);
 	tls_pSer->Deserialize(gender);
 	tls_pSer->Deserialize(height);
-	tls_pSer->Deserialize(width);
+	tls_pSer->Deserialize(weight);
 
-
+	if (strlen(name) == 0)
+		return;
 
 	char query[128]; memset(query, 0, sizeof(query));
 	_snprintf_s(query, _countof(query), _TRUNCATE, "SELECT name FROM colorverse.character WHERE name = '%s' and user_id = '%s'", name, info.pPlayer->GetID());
@@ -184,7 +177,7 @@ void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 	{
 		// 캐릭터가 없으면 INSERT
 		memset(query, 0, sizeof(query));
-		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO character VALUES ('%s', '%s', %d, %d, %d, %f, %f)", name, info.pPlayer->GetID(), index, species, gender, height, width);
+		_snprintf_s(query, _countof(query), _TRUNCATE, "INSERT INTO colorverse.character VALUES ('%s', '%s', %d, %f, %f)", name, info.pPlayer->GetID(), gender, height, weight);
 		state = mysql_query(m_pConnection, query);
 		if (0 != state)
 		{
@@ -194,11 +187,9 @@ void CDatabaseManager::CreateCharacter_Req(const stPlayerInfo& info)
 
 		tls_pSer->Serialize(result);
 		tls_pSer->Serialize(name);
-		tls_pSer->Serialize(index);
-		tls_pSer->Serialize(species);
 		tls_pSer->Serialize(gender);
 		tls_pSer->Serialize(height);
-		tls_pSer->Serialize(width);
+		tls_pSer->Serialize(weight);
 	}
 
 	char* pBuffer = info.pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
@@ -245,7 +236,7 @@ void CDatabaseManager::DeleteCharacter_Req(const stPlayerInfo& info)
 	{
 		// 삭제
 		memset(query, 0, sizeof(query));
-		_snprintf_s(query, _countof(query), _TRUNCATE, "DELETE FROM character WHERE name = '%s'", name);
+		_snprintf_s(query, _countof(query), _TRUNCATE, "DELETE FROM colorverse.character WHERE name = '%s' and user_id = '%s'", name, info.pPlayer->GetID());
 		state = mysql_query(m_pConnection, query);
 		if (0 != state)
 		{
@@ -309,16 +300,12 @@ void CDatabaseManager::StartGame_Req(const stPlayerInfo& info)
 		int index = 0;
 		string nickName = row[index++];
 		index++;
-		char characterIndex = atoi(row[index++]);
-		char species = atoi(row[index++]);
 		char gender = atoi(row[index++]);
 		float height = atof(row[index++]);
 		float width = atof(row[index]);
 
 		// 아직 틱스레드가 player 메모리를 안건드릴때라 여기서 함
 		info.pPlayer->SetNickName(nickName.c_str());
-		info.pPlayer->SetCharacterIndex(characterIndex);
-		info.pPlayer->SetSpecies(species);
 		info.pPlayer->SetGender(gender);
 		info.pPlayer->SetHeight(height);
 		info.pPlayer->SetWidth(width);

@@ -153,6 +153,7 @@
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="Monitor.cpp" />
     <ClCompile Include="RingBuffer.cpp" />
+    <ClCompile Include="RSA.cpp" />
     <ClCompile Include="Singleton.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="Serializer.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Monitor.h" />
     <ClInclude Include="CommonDef.h" />
     <ClInclude Include="RingBuffer.h" />
+    <ClInclude Include="RSA.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="Serializer.h" />

@@ -26,7 +26,7 @@ public:
 	void MySql_QuickUpdate();
 	// DBÇÔ¼ö
 
-	void ConfirmID_Req(CConnection* pConnection, char* pRecvedMsg);
+	void ConfirmID_Req(CConnection* pConnection, DWORD size, char* pRecvedMsg);
 	void JoinID_Req(CConnection* pConnection, char* pRecvedMsg);
 	void ConfirmIDGameServer_Res(char* pMsg);
 	void LogoutPlayerID_Not(char* pRecvedMsg);

@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "../NetLib/RSA.h"
 
 HANDLE g_hMutex = NULL;
 
@@ -23,9 +24,14 @@ int _tmain(int argc, _TCHAR* argv[])
 		return 0;
 	}
 
+	//char p[256]; strcpy_s(p, "opalopalopal");
+	//CRSA rsa(p, 12);
+	//rsa.Encrypt();
+	//rsa.Decrypt();
+
 	//////////////////////////////////////////////////////////////////////////
 	IocpLoginServer()->ServerStart();
-	IocpLoginServer()->ConnectToNoSQLServer();
+	//IocpLoginServer()->ConnectToNoSQLServer();
 	//////////////////////////////////////////////////////////////////////////
 
 	/*

@@ -84,7 +84,7 @@ void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRec
 	AreaManager()->Send_UpdateAreaForCreateObject(pPlayer);
 	//*/
 
-
+	pPlayer->SetKeepAliveTick(IocpGameServer()->GetServerTick());
 	pPlayer->SetIsConfirm(true);
 	LOG(LOG_INFO_LOW, "ID (%u) Connected. / Current Players (%u)",
 		pPlayer->GetKey(), PlayerManager()->GetPlayerCnt());
@@ -163,7 +163,7 @@ void CProcessPacket::fnMovePlayer_Req(CPlayer* _pPlayer, DWORD dwSize, char* _pR
 	//if (false == pPlayer->GetIsConfirm()) return; // UDP테스트중에는 닫는다
 
 //#ifndef _DEBUG
-	AreaManager()->Send_MovePlayerToActiveAreas(_pPlayer, _pRecvedMsg);
+	//AreaManager()->Send_MovePlayerToActiveAreas(_pPlayer, _pRecvedMsg);
 //#endif
 	
 	

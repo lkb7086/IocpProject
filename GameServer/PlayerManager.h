@@ -35,7 +35,39 @@ public:
 	CPlayer* FindPlayer(DWORD dwPkey);
 	inline unsigned __int32 GetPlayerCnt() { return (unsigned __int32)m_mapPlayer.size(); }
 
+	void CheckKeepAliveTick(DWORD dwServerTick)
+	{
+		for (auto it = m_mapPlayer.begin(); m_mapPlayer.end() != it; ++it)
+		{
+			CConnection* lpConnection = it->second;
+			if (nullptr == lpConnection) { puts("CIocpGameServer::CheckKeepAliveTick nullptr"); continue; }
 
+			if (INVALID_SOCKET == lpConnection->GetSocket() && lpConnection->m_bIsClosed)
+			{
+				LOG(LOG_ERROR_LOW, "SYSTEM | CIocpGameServer::CheckKeepAliveTick() | 좀비 컨테이너 %p, %d, %d, %d, %d",
+					lpConnection,
+					lpConnection->GetAcceptIoRefCount(),
+					lpConnection->GetRecvIoRefCount(),
+					lpConnection->GetSendIoRefCount(),
+					lpConnection->m_bIsClosed);
+
+				lpConnection->DecrementAcceptIoRefCount();
+				lpConnection->DecrementRecvIoRefCount();
+				lpConnection->DecrementSendIoRefCount();
+				InterlockedExchange((LPLONG)&lpConnection->m_bIsClosed, FALSE);
+				IocpGameServer()->CIocpServer::CloseConnection(lpConnection);
+				continue;
+			}
+
+			if (((CPlayer*)lpConnection)->m_bIsDummy)
+				continue;
+			if ((IocpGameServer()->GetServerTick() - lpConnection->GetKeepAliveTick()) >= KEEPALIVE_TICK)
+			{
+				LOG(LOG_INFO_NORMAL, "SYSTEM | CIocpGameServer::CheckKeepAliveTick() | 플레이어에게 일정 시간동안 패킷이 오지 않음");
+				IocpGameServer()->CIocpServer::CloseConnection(lpConnection);
+			}
+		}
+	}
 
 
 

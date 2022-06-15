@@ -11,7 +11,7 @@ CProcessPacket::~CProcessPacket()
 
 void CProcessPacket::fnConfirmID_Req(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
 {
-	DatabaseManager()->ConfirmID_Req(pConn, pRecvedMsg);
+	DatabaseManager()->ConfirmID_Req(pConn, dwSize, pRecvedMsg);
 }
 
 void CProcessPacket::fnConfirmIDGameServer_Res(CConnection* pConn, DWORD dwSize, char* pRecvedMsg)
