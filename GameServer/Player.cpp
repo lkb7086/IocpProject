@@ -15,9 +15,11 @@ CPlayer::~CPlayer()
 //변수를 초기화 시킨다.
 void CPlayer::InitPlayer()
 {
+	m_curCharacterCnt = 0;
 	m_isConfirm = false;
 	m_key = 0;
 	m_isMoveServer = false;
+	m_pos.Zero();
 
 	m_pPrevMoveNode = nullptr;
 	InitPrevMoveNode();
@@ -50,11 +52,11 @@ void CPlayer::InitPlayer()
 	m_isAccept = false;
 	m_isDead = false;
 	m_isInitNPCInfo = false;
-	m_nItemSlotsCnt = 0;
+	m_itemSlotCnt = 0;
 	m_equipGun = 0xFF;
 	m_isHost = false;
 
-	m_arrItem.fill(Item());
+	m_arrItem.fill(Item()); // 매개변수값으로 모두 초기화
 }
 
 void CPlayer::SetPlayInfo(char* pRecvedMsg)
@@ -72,35 +74,32 @@ void CPlayer::SetPlayInfo(char* pRecvedMsg)
 	tls_pSer->Deserialize(m_nExp);
 
 	//printf("%d %d %d %f %f %d\n", PKey, m_nClass, m_nArea, m_vPos.x, m_vPos.y, m_nUnit_UID);
-
+	
 	// 인벤토리
-	tls_pSer->Deserialize(m_nItemSlotsCnt);
-	if (0 > m_nItemSlotsCnt || MAX_INVEN_SLOT < m_nItemSlotsCnt)
+	tls_pSer->Deserialize(m_itemSlotCnt);
+	if (0 > m_itemSlotCnt || MAX_INVEN_SLOT < m_itemSlotCnt)
 		return;
-	if (0 != m_nItemSlotsCnt)
+	if (0 != m_itemSlotCnt)
 	{
 		unsigned __int64 nUID = 0; unsigned int nCode = 0; int nAmount = 0; unsigned short nSlot = 0;
-		for (int i = 0; i < m_nItemSlotsCnt; i++)
+		for (int i = 0; i < m_itemSlotCnt; i++)
 		{
 			tls_pSer->Deserialize(nUID); // uid
 			tls_pSer->Deserialize(nCode); // code
 			tls_pSer->Deserialize(nAmount); // amount
 			tls_pSer->Deserialize(nSlot); // slot
 			
-			m_arrItem[nSlot].nUid = nUID;
-			m_arrItem[nSlot].nCode = nCode;
-			m_arrItem[nSlot].nAmount = nAmount;
-			m_arrItem[nSlot].nSlot = nSlot;
+			m_arrItem[nSlot].uid = nUID;
+			m_arrItem[nSlot].code = nCode;
+			m_arrItem[nSlot].amount = nAmount;
+			m_arrItem[nSlot].slot = nSlot;
 
 			//ItemManager()->code(*this, nSlot);
 		}
 	}
 
 	//sort(m_arrItem, m_arrItem + (MAX_INVEN_SLOT - 1));
-	for (int i = 0; i < 25; i++)
-	{
-		//cout << m_arrItem[i].nUid << " ";
-	}
+
 	//cout << endl;
 
 	//SetZone(0); // 임시

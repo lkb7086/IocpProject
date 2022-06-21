@@ -14,6 +14,7 @@ enum class PacketType : packet_type
 	CreateCharacter_Res,
 	DeleteCharacter_Res,
 	StartGame_Res,
+	StartLogin_Not,
 
 
 
@@ -35,10 +36,10 @@ enum class PacketType : packet_type
 
 
 	// 지역
-	CL_GS_UpdateAreaForDeleteObject,
+	UpdateAreaForDeleteObject_Not,
 	UpdateAreaForCreateObjectV_Not,
 	UpdateAreaForCreateObject_Not,
-	CL_GS_UpdateAreaForDeleteObjectV,
+	UpdateAreaForDeleteObjectV_Not,
 
 
 	CL_GS_CL_Chat,
@@ -51,22 +52,21 @@ enum class PacketType : packet_type
 	ConfirmIDGameServer_Req,
 	ConfirmIDGameServer_Res,
 	StartLobby_Not,
-	StartLogin_Not,
+	LogoutPlayerDB_Not,
 	LogoutPlayerID_Not,
 	MoveServer_Not1,
 	MoveServer_Not2,
 
-	// 툴
+	// 운영툴
 	ServerTestPacket = 40000,
-	Notice_Not = 40001,
+	Notice_Not,
 
-	// GameDB와 주고받는 타입
-	TestLogin_Rq = 50001,
-	CreateCharacter_Req,
+	// GameDB와 클라이언트가 주고받는 타입
+	CreateCharacter_Req = 50001,
 	DeleteCharacter_Req,
 	StartGame_Req,
 
-
+	// Nosql
 	Nosql_Not = 0xFFFF
 };
 

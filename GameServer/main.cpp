@@ -29,6 +29,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	if (nullptr == tls_pEngine)
 		return 0;
 
+	
+
 	/*
 	string strBuf;
 	fstream fs;
@@ -186,7 +188,9 @@ void OnCreateNpc()
 
 
 
-
+// DB스레드에서 사용하는 변수
+//CPlayer 처음 월드진입시 초기화데이터들
+//CPlayer m_curCharacterCnt
 
 
 /*

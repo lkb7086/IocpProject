@@ -47,9 +47,7 @@ public:
 
 	void ExecuteUpdateArea(CPlayer* pPlayer)
 	{
-		int nArea = GetPosToArea(pPlayer->m_pos);
-		bool bRet = PrepareUpdateArea(pPlayer, nArea);
-		if (bRet) // 현재 플레이어가 다른 지역으로 이동하였다면
+		if (PrepareUpdateArea(pPlayer, GetPosToArea(pPlayer->m_pos))) // 현재 플레이어가 다른 지역으로 이동하였다면
 		{
 			// 캐릭활성화하라고 해당자에게 유니캐스트패킷, 브로드캐스트패킷
 			Send_UpdateAreaForCreateObject(pPlayer);
@@ -85,7 +83,7 @@ public:
 
 	// 지역 업데이트
 	void Send_UpdateAreaForCreateObject(CPlayer* pPlayer);
-	void Send_UpdateAreaForDeleteObject(CPlayer* pPlayer);
+	void Send_UpdateAreaForDeleteObject(CPlayer* pPlayer, bool isNormal = true);
 	// 이동
 	void Send_MovePlayerToActiveAreas(CPlayer *pPlayer, char *pRecvedMsg);
 

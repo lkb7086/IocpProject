@@ -145,7 +145,7 @@ public:
 		player.SetHeight(playerInfo.height);
 		player.SetWidth(playerInfo.width);
 		//printf("%u %s %s %d %d %d %d\n", playerInfo.uid, playerInfo.id, playerInfo.nickName, playerInfo.species, playerInfo.gender, playerInfo.height, playerInfo.width);
-		player.m_pos = Vector3(CMTRand::GetRand_float(-30.0f, 30.0f), CMTRand::GetRand_float(-30.0f, 30.0f), CMTRand::GetRand_float(-30.0f, 30.0f));
+		//player.m_pos = Vector3(CMTRand::GetRand_float(-30.0f, 30.0f), CMTRand::GetRand_float(-30.0f, 30.0f), CMTRand::GetRand_float(-30.0f, 30.0f));
 
 		m_mapPlayerInfo.erase(player.GetKey());
 	}

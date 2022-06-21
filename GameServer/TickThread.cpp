@@ -61,8 +61,8 @@ void CTickThread::OnProcess()
 			{
 				// 종료처리
 				IocpGameServer()->OnClose(pInfo->pPlayer);
+				
 				IocpGameServer()->ProcessSystemMsg(pInfo->pPlayer, 0, static_cast<WPARAM>(GameServerSystemMsg::SYSTEM_MSG));
-
 				memset(pInfo, 0, sizeof(PacketInfo));
 				m_stackPacketS.Push(pInfo);
 				continue;
@@ -95,7 +95,7 @@ void CTickThread::OnProcess()
 		// 플레이어 영역업데이트
 		if (0 == (m_dwTickCount & 31))
 		{
-			//AreaManager()->DoUpdateArea_ZonePlayers();
+			AreaManager()->DoUpdateArea_ZonePlayers();
 		}
 
 		// NPC 프레임처리

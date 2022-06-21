@@ -2,7 +2,8 @@
 #include "LifeObject.h"
 #include "NPC.h"
 
-struct Rank {
+struct Rank
+{
 public:
 	Rank() : nWin(0), nKill(0), nPKey(0) {}
 	void Init(){ nWin = 0; nKill = 0; nPKey = 0; }
@@ -24,17 +25,19 @@ public:
 
 struct Item
 {
-	// 타입: 장비, 소모
-	unsigned long long nUid;
-	unsigned int nCode;
-	int nAmount;
-	unsigned short nSlot;
-	bool isMerge;
-	unsigned char rank;
-	Item() {
+	unsigned long long uid;
+	unsigned int code;
+	int amount;
+	unsigned short slot;
+
+	Item()
+	{
 		memset(this, 0, sizeof(Item));
 	}
-	void Init() { memset(this, 0, sizeof(Item));
+
+	void Init()
+	{ 
+		memset(this, 0, sizeof(Item));
 	}
 };
 
@@ -48,7 +51,33 @@ struct Color
 	}
 };
 
+/*
+struct stCharacterInfo
+{
+	string name;
+	char gender;
+	float height;
+	float weight;
+	char index;
 
+	stCharacterInfo()
+	{
+	}
+
+	stCharacterInfo(string _name, char _gender, float _height, float _weight, char _index) : name(_name), gender(_gender), height(_height), weight(_weight), index(_index)
+	{
+	}
+
+	void Init()
+	{
+		name.clear();
+		gender = 0;
+		height = 0;
+		weight = 0;
+		index = -1;
+	}
+};
+*/
 
 
 
@@ -90,7 +119,7 @@ public:
 	void InitInventory()
 	{
 		m_arrItem.fill(Item());
-		m_nItemSlotsCnt = 0;
+		m_itemSlotCnt = 0;
 	}
 
 	void FuncDummy(BYTE _nClass, int _nArea, float _x, float _y, int ii)
@@ -136,8 +165,7 @@ public:
 	GETSET(char, Gender, m_gender);
 	GETSET(char, Height, m_height);
 	GETSET(char, Width, m_width);
-	
-	
+	GETSET(int, CurCharacterCnt, m_curCharacterCnt);
 
 	Node* m_pPrevMoveNode;
 	CNPC* m_pTargetNPC;
@@ -148,7 +176,7 @@ public:
 	bool    m_isAccept;
 	bool    m_isInitNPCInfo;
 	bool    m_bIsDummy;
-	short   m_nItemSlotsCnt;
+	short   m_itemSlotCnt;
 	int  	m_damage;
 	unsigned int m_nAccox_UID;
 	unsigned int m_nUnit_UID;
@@ -160,8 +188,10 @@ public:
 	bool m_isMoveServer;
 
 	Color m_color;
+
 private:
-	UINT    m_autoTargetedNPCKey; // 오토사냥시 타겟된 npc키
+	int m_curCharacterCnt;
+	UINT    m_autoTargetedNPCKey;
 	unsigned __int32	m_key;
 	char	m_szID[MAX_ID_LENGTH];
 	char	m_szNickName[MAX_NICKNAME_LENGTH];

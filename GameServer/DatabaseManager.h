@@ -11,6 +11,8 @@
 #include "DBThread.h"
 
 
+
+
 struct stPlayerInfo
 {
 	CPlayer* pPlayer;
@@ -46,7 +48,7 @@ public:
 	void CreateCharacter_Req(const stPlayerInfo& info);
 	void DeleteCharacter_Req(const stPlayerInfo& info);
 	void StartGame_Req(const stPlayerInfo& info);
-	
+	void LogoutPlayerDB_Not(const stPlayerInfo& info);
 
 
 	// ppl queue
@@ -91,6 +93,8 @@ private:
 	concurrent_queue<stPlayerInfo> m_queueDB;
 	CDBThread* m_pDBThread;
 	CRingBuffer m_ringBuffer;
+
+	
 
 	class CResultEraser final
 	{

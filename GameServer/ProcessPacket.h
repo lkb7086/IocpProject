@@ -25,8 +25,8 @@ public:
 	static void fnCreateCharacter_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnDeleteCharacter_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnStartGame_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
-
-
+	static void fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	
 
 	static void fnMovePlayer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnChangeColor_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
@@ -38,7 +38,7 @@ public:
 
 	// ·Î±×ÀÎ
 	static void fnStartLobby_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
-	static void fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnLogoutPlayerDB_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnMoveServer_Not1(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnMoveServer_Not2(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	

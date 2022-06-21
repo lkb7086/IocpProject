@@ -55,7 +55,6 @@ void CProcessPacket::fnStartGame_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecv
 
 
 
-
 void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	PlayerManager()->AddPlayer(pPlayer);
@@ -74,21 +73,22 @@ void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRec
 	PlayerManager()->InitPlayerInfo(player);
 
 
-	///*
+	
 	// 영역
 	//player.m_pos.Zero();
 	int area = AreaManager()->GetPosToArea(pPlayer->m_pos);
-	player.SetArea(area);
+	AreaManager()->AddPlayerToArea(pPlayer, area);
 	AreaManager()->UpdateActiveAreas(pPlayer);
-	AreaManager()->AddPlayerToArea(pPlayer, pPlayer->GetArea());
+	//AreaManager()->AddPlayerToArea(pPlayer, pPlayer->GetArea());
 	AreaManager()->Send_UpdateAreaForCreateObject(pPlayer);
-	//*/
+	
 
 	pPlayer->SetKeepAliveTick(IocpGameServer()->GetServerTick());
 	pPlayer->SetIsConfirm(true);
 	LOG(LOG_INFO_LOW, "ID (%u) Connected. / Current Players (%u)",
 		pPlayer->GetKey(), PlayerManager()->GetPlayerCnt());
 
+	/*
 	char result = 0;
 	tls_pSer->StartSerialize();
 	tls_pSer->Serialize(static_cast<packet_type>(PacketType::StartGame_Res));
@@ -99,6 +99,7 @@ void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRec
 		return;
 	tls_pSer->CopyBuffer(pBuffer);
 	pPlayer->SendPost(tls_pSer->GetCurBufSize());
+	*/
 }
 
 void CProcessPacket::fnMoveServer_Not1(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
@@ -163,7 +164,7 @@ void CProcessPacket::fnMovePlayer_Req(CPlayer* _pPlayer, DWORD dwSize, char* _pR
 	//if (false == pPlayer->GetIsConfirm()) return; // UDP테스트중에는 닫는다
 
 //#ifndef _DEBUG
-	//AreaManager()->Send_MovePlayerToActiveAreas(_pPlayer, _pRecvedMsg);
+	AreaManager()->Send_MovePlayerToActiveAreas(_pPlayer, _pRecvedMsg);
 //#endif
 	
 	
@@ -301,12 +302,18 @@ void CProcessPacket::CL_GS_CL_Chat(CPlayer* pPlayer, DWORD dwSize, char* pRecved
 
 void CProcessPacket::fnServerTestPacket(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
-	PlayerManager()->AddPlayer(pPlayer);
-
-	//PlayerManager()->Send_TCP_RecvBufferFromServer(pRecvedMsg, dwSize);
+	pPlayer->m_bIsDummy = true;
+	pPlayer->m_pos = Vector3(CMTRand::GetRand_float(-3500.0f, 3500.0f), CMTRand::GetRand_float(-3500.0f, 3500.0f), 10.0f);
+	fnStartLogin_Not(pPlayer, dwSize, pRecvedMsg);
+	//fnImInWorld_Not(pPlayer, dwSize, pRecvedMsg);
 }
 
 void CProcessPacket::fnStartLobby_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	DatabaseManager()->StartLobby_Not(stPlayerInfo(pPlayer, dwSize, pRecvedMsg));
+}
+
+void CProcessPacket::fnLogoutPlayerDB_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+{
+	DatabaseManager()->LogoutPlayerDB_Not(stPlayerInfo(pPlayer, dwSize, pRecvedMsg));
 }

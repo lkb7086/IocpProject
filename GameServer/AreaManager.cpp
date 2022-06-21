@@ -41,25 +41,25 @@ void CAreaManager::Send_TCP_RecvBufferFromServer(DWORD dwSize, char* pRecvBuffer
 	}*/
 }
 
-bool CAreaManager::AddPlayerToArea(CPlayer* pPlayer, int byArea)
+bool CAreaManager::AddPlayerToArea(CPlayer* pPlayer, int area)
 {
-	if (0 > byArea || MAX_AREA <= byArea)
+	if (0 > area || MAX_AREA <= area)
 	{
-		LOG(LOG_ERROR_LOW, "SYSTEM | CAreaManager::AddPlayerToArea() | Wrong Area : %d", byArea);
+		LOG(LOG_ERROR_LOW, "SYSTEM | CAreaManager::AddPlayerToArea() | Wrong Area : %d", area);
 		return false;
 	}
 
 	CMonitorSRW::OwnerSRW lock(m_srwArea, LockExclusive);
 
-	auto area_it = m_mapArea[byArea].find(pPlayer);
-	if (area_it != m_mapArea[byArea].end())
+	auto it = m_mapArea[area].find(pPlayer);
+	if (it != m_mapArea[area].end())
 	{
 		LOG(LOG_ERROR_LOW, "SYSTEM | CAreaManager::AddPlayerToArea() | PKey[%d]는 이미 m_mapArea[%d]에 있습니다.",
-			pPlayer->GetKey(), byArea);
+			pPlayer->GetKey(), area);
 		return false;
 	}
-	pPlayer->SetArea(byArea);
-	m_mapArea[byArea].insert(pPlayer);
+	pPlayer->SetArea(area);
+	m_mapArea[area].insert(pPlayer);
 	return true;
 }
 
@@ -87,35 +87,29 @@ bool CAreaManager::RemovePlayerFromArea(CPlayer* pPlayer, int byArea)
 	return true;
 }
 
-bool CAreaManager::PrepareUpdateArea(CPlayer* pPlayer, int newAreaIndex)
+bool CAreaManager::PrepareUpdateArea(CPlayer* pPlayer, int newArea)
 {
-	if (0 > newAreaIndex || MAX_AREA <= newAreaIndex)
+	if (0 > newArea || MAX_AREA <= newArea)
 	{
-		LOG(LOG_ERROR_NORMAL, "SYSTEM | CAreaManager::PrepareUpdateArea() | PKey[%d]는 m_mapArea[%d]",
-			pPlayer->GetKey(), newAreaIndex);
+		LOG(LOG_ERROR_NORMAL, "SYSTEM | CAreaManager::PrepareUpdateArea() | PKey[%d]는 m_mapArea[%d]", pPlayer->GetKey(), newArea);
 		return false;
 	}
 
-	int nOldArea = pPlayer->GetArea();
-	int nNewArea = newAreaIndex;
-	if (nOldArea == nNewArea) // 지역이 바뀌지 않았다면
+	int oldArea = pPlayer->GetArea();
+	if (oldArea == newArea) // 지역이 바뀌지 않았다면
 	{
-		//printf("PrepareUpdateArea / nOldArea == nNewArea   %d   %d  \n", nOldArea, nNewArea);
 		return false;
 	}
 
-	bool bRet = RemovePlayerFromArea(pPlayer, nOldArea);
-	if (false == bRet)
+	bool result = RemovePlayerFromArea(pPlayer, oldArea);
+	if (false == result)
 	{
-		//printf("CAreaManager::PrepareUpdateArea() | if (false == bRet) 1\n");
 		//return false;
 	}
 	
-	bRet = AddPlayerToArea(pPlayer, nNewArea);
-	if (false == bRet)
+	result = AddPlayerToArea(pPlayer, newArea);
+	if (false == result)
 	{
-		//printf("CAreaManager::PrepareUpdateArea() | if (false == bRet) 2\n");
-		//IocpGameServer()->CloseConnection(pPlayer);
 		return false;
 	}
 
@@ -128,52 +122,51 @@ void CAreaManager::UpdateActiveAreas(CPlayer* pPlayer)
 {
 	// 현재 플레이어가 속한 영역과 주위의 8개의 영역이 플레이어가 영향을
 	// 줄 수 있는 영역이다. 최대 9개의 영역에 영향을 줄 수 있는데 그 영역을 구한다.
-	int byArea = pPlayer->GetArea();
-	if (0 > byArea || MAX_AREA <= byArea)
+	int oldArea = pPlayer->GetArea();
+	if (0 > oldArea || MAX_AREA <= oldArea)
 	{
-		//printf("UpdateActiveAreas fail %d\n", byArea);
 		return;
 	}
 
 	AllPopNewArea();
 
-	int byNewActiveAreas[MAX_ACTIVE_AREAS];
-	fill_n(byNewActiveAreas, MAX_ACTIVE_AREAS, -1);
+	int arrNewActiveAreas[MAX_ACTIVE_AREAS];
+	fill_n(arrNewActiveAreas, MAX_ACTIVE_AREAS, -1);
 
 	//왼쪽 위
-	int nArea = byArea - AREA_SECTOR_CNT - 1;
-	if (nArea >= 0)
-		byNewActiveAreas[EDirection::DIR_LEFTUP] = nArea;
+	int newArea = oldArea - AREA_SECTOR_CNT - 1;
+	if (newArea >= 0)
+		arrNewActiveAreas[EDirection::DIR_LEFTUP] = newArea;
 	//위
-	nArea = byArea - AREA_SECTOR_CNT;
-	if (nArea >= 0)
-		byNewActiveAreas[EDirection::DIR_UP] = nArea;
+	newArea = oldArea - AREA_SECTOR_CNT;
+	if (newArea >= 0)
+		arrNewActiveAreas[EDirection::DIR_UP] = newArea;
 	//오른쪽 위
-	nArea = byArea - AREA_SECTOR_CNT + 1;
-	if (nArea >= 0)
-		byNewActiveAreas[EDirection::DIR_RIGHTUP] = nArea;
+	newArea = oldArea - AREA_SECTOR_CNT + 1;
+	if (newArea >= 0)
+		arrNewActiveAreas[EDirection::DIR_RIGHTUP] = newArea;
 	//왼쪽
-	nArea = byArea - 1;
-	if (nArea >= 0)
-		byNewActiveAreas[EDirection::DIR_LEFT] = nArea;
+	newArea = oldArea - 1;
+	if (newArea >= 0)
+		arrNewActiveAreas[EDirection::DIR_LEFT] = newArea;
 	//중간
-	byNewActiveAreas[EDirection::DIR_CENTER] = byArea;
+	arrNewActiveAreas[EDirection::DIR_CENTER] = oldArea;
 	//오른쪽
-	nArea = byArea + 1;
-	if (nArea < MAX_AREA)
-		byNewActiveAreas[EDirection::DIR_RIGHT] = nArea;
+	newArea = oldArea + 1;
+	if (newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_RIGHT] = newArea;
 	//왼쪽 아래
-	nArea = byArea + AREA_SECTOR_CNT - 1;
-	if (nArea < MAX_AREA)
-		byNewActiveAreas[EDirection::DIR_LEFTDOWN] = nArea;
+	newArea = oldArea + AREA_SECTOR_CNT - 1;
+	if (newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_LEFTDOWN] = newArea;
 	//아래
-	nArea = byArea + AREA_SECTOR_CNT;
-	if (nArea < MAX_AREA)
-		byNewActiveAreas[EDirection::DIR_DOWN] = nArea;
+	newArea = oldArea + AREA_SECTOR_CNT;
+	if (newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_DOWN] = newArea;
 	//오른쪽 아래
-	nArea = byArea + AREA_SECTOR_CNT + 1;
-	if (nArea < MAX_AREA)
-		byNewActiveAreas[EDirection::DIR_RIGHTDOWN] = nArea;
+	newArea = oldArea + AREA_SECTOR_CNT + 1;
+	if (newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_RIGHTDOWN] = newArea;
 
 	///////////////////////////////////////////////////////
 	// 현재 활동영역과 이전 활동영역을 비교해서 이전 활동 영역중
@@ -182,7 +175,7 @@ void CAreaManager::UpdateActiveAreas(CPlayer* pPlayer)
 	int* pPlayerInActiveAreas = pPlayer->GetInActiveAreas();
 	for (int i = 0; i < MAX_INACTIVE_AREAS; ++i)
 		pPlayerInActiveAreas[i] = -1;
-	BYTE byInActiveAreaCnt = 0;
+	int inActiveAreaCnt = 0;
 
 	// InActiveArea를 구한다
 	// 맨처음 함수가 호출되면 이 반복문에서 continue만 한다 (값이 설정되는 부분이 없다)
@@ -196,7 +189,7 @@ void CAreaManager::UpdateActiveAreas(CPlayer* pPlayer)
 
 		for (int j = 0; j < MAX_ACTIVE_AREAS; j++)
 		{
-			if (pPlayerActiveAreas[i] == byNewActiveAreas[j])    // 겹치면
+			if (pPlayerActiveAreas[i] == arrNewActiveAreas[j])    // 겹치면
 			{
 				flag = true;
 				break;
@@ -206,7 +199,7 @@ void CAreaManager::UpdateActiveAreas(CPlayer* pPlayer)
 			continue;
 
 		// 겹치는 영역이 아니라면 즉 InActiveArea라면
-		pPlayerInActiveAreas[byInActiveAreaCnt++] = pPlayerActiveAreas[i];
+		pPlayerInActiveAreas[inActiveAreaCnt++] = pPlayerActiveAreas[i];
 	}
 
 	// 새로 활성화된 지역만 스택에 넣는다
@@ -214,12 +207,12 @@ void CAreaManager::UpdateActiveAreas(CPlayer* pPlayer)
 	{
 		bool flag = false;
 
-		if (0 > byNewActiveAreas[i])
+		if (0 > arrNewActiveAreas[i])
 			continue;
 
 		for (int j = 0; j < MAX_ACTIVE_AREAS; j++)
 		{
-			if (byNewActiveAreas[i] == pPlayerActiveAreas[j])
+			if (arrNewActiveAreas[i] == pPlayerActiveAreas[j])
 			{
 				flag = true;
 				break;
@@ -229,11 +222,11 @@ void CAreaManager::UpdateActiveAreas(CPlayer* pPlayer)
 			continue;
 
 		//printf("push %d\n", byNewActiveAreas[i]);
-		m_vecNewActiveArea.push_back(byNewActiveAreas[i]);
+		m_vecNewActiveArea.push_back(arrNewActiveAreas[i]);
 	}
 
 	// 플레이어의 활동영역을 새로운 영역으로 갱신
-	memcpy(pPlayerActiveAreas, byNewActiveAreas, sizeof(int) * MAX_ACTIVE_AREAS);
+	memcpy(pPlayerActiveAreas, arrNewActiveAreas, sizeof(int) * MAX_ACTIVE_AREAS);
 
 	/*
 	LOG( LOG_INFO_LOW ,
@@ -257,7 +250,7 @@ int CAreaManager::GetPosToArea(const Vector3& _pos)
 
 	// x와 y를 다시 정의한다
 	int nPosX = static_cast<int>(_pos.x + AREA_HALF_POS);
-	int nPosY = static_cast<int>(abs(_pos.z - AREA_HALF_POS));
+	int nPosY = static_cast<int>(abs(_pos.y - AREA_HALF_POS));
 	// 실질적인 지역을 구한다
 	int nArea = ((nPosY / AREA_SECTOR_LINE) * AREA_SECTOR_CNT) + nPosX / AREA_SECTOR_LINE;
 
@@ -348,9 +341,9 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 {
 	unsigned int stackSize = (unsigned int)m_vecNewActiveArea.size();
 	unsigned int uiAreaPlayerCnt = 0;
-	int byNewArea[MAX_ACTIVE_AREAS];
+	int newArea[MAX_ACTIVE_AREAS];
 	for (int i = 0; i < MAX_ACTIVE_AREAS; ++i)
-		byNewArea[i] = -1;
+		newArea[i] = -1;
 
 	// 새로활성화된 지역이 없다면 아무것도 안하고 나간다
 	if (0 == stackSize || MAX_ACTIVE_AREAS < stackSize)
@@ -362,7 +355,7 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 	int while_i = 0;
 	while (!m_vecNewActiveArea.empty())
 	{
-		byNewArea[while_i] = m_vecNewActiveArea.back();
+		newArea[while_i] = m_vecNewActiveArea.back();
 		m_vecNewActiveArea.pop_back();
 		while_i++;
 	}
@@ -382,12 +375,12 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 
 		for (unsigned int i = 0; i < stackSize; i++)
 		{
-			if (0 > byNewArea[i] || byNewArea[i] >= MAX_AREA)
+			if (0 > newArea[i] || newArea[i] >= MAX_AREA)
 				continue;
 
-			for (auto area_it = m_mapArea[byNewArea[i]].begin(); area_it != m_mapArea[byNewArea[i]].end(); area_it++)
+			for (auto it = m_mapArea[newArea[i]].begin(); it != m_mapArea[newArea[i]].end(); it++)
 			{
-				CPlayer* pAreaPlayer = (CPlayer*)*area_it;
+				CPlayer* pAreaPlayer = (CPlayer*)*it;
 				if (pAreaPlayer == pPlayer)
 					continue;
 
@@ -411,12 +404,12 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 		tls_pSer->Serialize(uiAreaPlayerCnt);
 		for (unsigned int i = 0; i < stackSize; i++)
 		{
-			if (0 > byNewArea[i] || byNewArea[i] >= MAX_AREA)
+			if (0 > newArea[i] || newArea[i] >= MAX_AREA)
 				continue;
 
-			for (auto area_it = m_mapArea[byNewArea[i]].begin(); area_it != m_mapArea[byNewArea[i]].end(); area_it++)
+			for (auto it = m_mapArea[newArea[i]].begin(); it != m_mapArea[newArea[i]].end(); it++)
 			{
-				CPlayer* pAreaPlayer = (CPlayer*)*area_it;
+				CPlayer* pAreaPlayer = (CPlayer*)*it;
 				if (nullptr == pAreaPlayer || pPlayer == pAreaPlayer)
 					continue;
 				tls_pSer->Serialize(pAreaPlayer->GetKey());
@@ -436,36 +429,40 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 	//AllPopNewArea();
 }
 
-void CAreaManager::Send_UpdateAreaForDeleteObject(CPlayer* pPlayer)
+void CAreaManager::Send_UpdateAreaForDeleteObject(CPlayer* pPlayer, bool isNormal)
 {
 	int* pInActiveAreas = pPlayer->GetInActiveAreas();
 	m_vecDeleteArea.clear();
 
 	{
 		//CMonitorSRW::OwnerSRW lock(m_srwArea[nZone], LockShared);
+		tls_pSer->StartSerialize();
+		tls_pSer->Serialize(static_cast<packet_type>(PacketType::UpdateAreaForDeleteObject_Not));
+		tls_pSer->Serialize(pPlayer->GetKey());
+
 		for (int i = 0; i < MAX_INACTIVE_AREAS; i++)
 		{
-			int byInActiveArea = pInActiveAreas[i];
+			int inActiveArea = pInActiveAreas[i];
 
-			if (0 > byInActiveArea || byInActiveArea >= MAX_AREA)
+			if (0 > inActiveArea || inActiveArea >= MAX_AREA)
 				continue;
 
-			for (auto area_it = m_mapArea[byInActiveArea].begin(); area_it != m_mapArea[byInActiveArea].end(); area_it++)
+			for (auto it = m_mapArea[inActiveArea].begin(); it != m_mapArea[inActiveArea].end(); it++)
 			{
-				// 트리거 밟은 플레이어 끄라고 브로드캐스팅
-				CPlayer* pAreaPlayer = (CPlayer*)*area_it;
+				// 플레이어 끄라고 브로드캐스팅
+				CPlayer* pAreaPlayer = (CPlayer*)*it;
 				if (pAreaPlayer == pPlayer)
 					continue;
-				stCL_GS_UpdateAreaForDeleteObject* pDelete =
-					(stCL_GS_UpdateAreaForDeleteObject*)pAreaPlayer->PrepareSendPacket(sizeof(stCL_GS_UpdateAreaForDeleteObject));
-				if (nullptr == pDelete)
+
+				char* pBuffer = pAreaPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+				if (nullptr == pBuffer)
 					continue;
-				pDelete->type = static_cast<packet_type>(PacketType::CL_GS_UpdateAreaForDeleteObject);
-				pDelete->uiPKey = pPlayer->GetKey();
-				pAreaPlayer->SendPost(sizeof(stCL_GS_UpdateAreaForDeleteObject));
+				tls_pSer->CopyBuffer(pBuffer);
+				pAreaPlayer->SendPost(tls_pSer->GetCurBufSize());
 
 				// 트리거밟은 플레이어를 끈 플레이어들의 키를 모음
-				m_vecDeleteArea.push_back(pAreaPlayer->GetKey());
+				if (isNormal)
+					m_vecDeleteArea.push_back(pAreaPlayer->GetKey());
 			}
 		}
 	}
@@ -474,7 +471,7 @@ void CAreaManager::Send_UpdateAreaForDeleteObject(CPlayer* pPlayer)
 		return;
 
 	tls_pSer->StartSerialize();
-	tls_pSer->Serialize(static_cast<packet_type>(PacketType::CL_GS_UpdateAreaForDeleteObjectV));
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::UpdateAreaForDeleteObjectV_Not));
 	tls_pSer->Serialize((UINT)m_vecDeleteArea.size());
 	while (!m_vecDeleteArea.empty())
 	{
@@ -513,6 +510,7 @@ void CAreaManager::Send_MovePlayerToActiveAreas(CPlayer* pPlayer, char *pRecvedM
 		for (auto it = m_mapArea[activeArea].begin(); it != m_mapArea[activeArea].end(); ++it)
 		{
 			CPlayer* pAreaPlayer = (CPlayer*)*it;
+			//if (pAreaPlayer == pPlayer || pAreaPlayer->m_bIsDummy)
 			if (pAreaPlayer == pPlayer)
 				continue;
 
