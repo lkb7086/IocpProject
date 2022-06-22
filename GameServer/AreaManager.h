@@ -63,7 +63,7 @@ public:
 
 	void DoUpdateArea_ZonePlayers()
 	{
-		CMonitorSRW::OwnerSRW lock(m_srwArea, LockExclusive);
+		//CMonitorSRW::OwnerSRW lock(m_srwArea, LockExclusive); // 없어도 된다, 왜냐하면 삭제를 이스레드가 하기 때문
 
 		for (size_t i = 0; i < MAX_AREA; i++)
 		{
@@ -96,6 +96,6 @@ private:
 	vector<int>     m_vecNewActiveArea;
 	vector<unsigned int>     m_vecDeleteArea;
 
-	set<CPlayer*>		m_mapArea[MAX_AREA];
+	concurrent_unordered_set<CPlayer*>		m_mapArea[MAX_AREA];
 };
 CREATE_FUNCTION(CAreaManager, AreaManager);

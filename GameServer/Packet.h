@@ -110,7 +110,12 @@ struct stUtil_UI_F_F : PacketHeader { unsigned int nUInteger; float nFloat1; flo
 
 
 
-
+struct MovePlayer_Cn : PacketHeader
+{
+	float posX;
+	float posY;
+	float posZ;
+};
 
 struct MovePlayer_Sn : PacketHeader
 {

@@ -63,9 +63,9 @@ bool CPlayerManager::RemovePlayer(CPlayer* pPlayer)
 		return false;
 	}
 
-	CMonitorSRW::OwnerSRW lock(m_srwPlayer, TryLockExclusive);
+	//CMonitorSRW::OwnerSRW lock(m_srwPlayer, TryLockExclusive);
 
-	m_mapPlayer.unsafe_erase(key);
+	m_mapPlayer.erase(key);
 	return true;
 }
 CPlayer* CPlayerManager::FindPlayer(DWORD dwPkey)

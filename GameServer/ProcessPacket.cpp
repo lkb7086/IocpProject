@@ -57,34 +57,24 @@ void CProcessPacket::fnStartGame_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecv
 
 void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
-	PlayerManager()->AddPlayer(pPlayer);
+	//if (pPlayer->GetIsConfirm() == false)
+	{
+		PlayerManager()->AddPlayer(pPlayer);
+		PlayerManager()->InitPlayerInfo(*pPlayer);
 
-	CPlayer& player = *pPlayer;
-
-
-	// uni: 로그인 플레이어 정보 -> 로그인 클라
-	//PlayerManager()->GS_CL_LoginInfo(player);
-	// uni: 월드 플레이어들 정보 -> 로그인 클라
-	//PlayerManager()->GS_CL_WorldPlayerInfo(pPlayer);
-	// bro: 로그인 플레이어 정보 -> 월드 플레이어들 클라
-	//PlayerManager()->GS_CL_LoginPlayerInfo(pPlayer);
+		pPlayer->SetKeepAliveTick(IocpGameServer()->GetServerTick());
+		pPlayer->SetIsConfirm(true);
+	}
 
 
-	PlayerManager()->InitPlayerInfo(player);
-
-
-	
-	// 영역
-	//player.m_pos.Zero();
 	int area = AreaManager()->GetPosToArea(pPlayer->m_pos);
 	AreaManager()->AddPlayerToArea(pPlayer, area);
 	AreaManager()->UpdateActiveAreas(pPlayer);
-	//AreaManager()->AddPlayerToArea(pPlayer, pPlayer->GetArea());
 	AreaManager()->Send_UpdateAreaForCreateObject(pPlayer);
-	
 
-	pPlayer->SetKeepAliveTick(IocpGameServer()->GetServerTick());
-	pPlayer->SetIsConfirm(true);
+
+
+
 	LOG(LOG_INFO_LOW, "ID (%u) Connected. / Current Players (%u)",
 		pPlayer->GetKey(), PlayerManager()->GetPlayerCnt());
 

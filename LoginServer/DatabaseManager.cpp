@@ -125,6 +125,7 @@ void CDatabaseManager::ConfirmID_Req(CConnection* pConnection, DWORD size, char*
 		//((CPlayer*)pConnection)->m_serverID = 0;
 
 
+
 		m_pSerializer->StartSerialize();
 		m_pSerializer->Serialize(static_cast<packet_type>(PacketType::ConfirmIDGameServer_Req));
 		m_pSerializer->Serialize(result);

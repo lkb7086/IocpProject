@@ -229,8 +229,7 @@ bool CIocpGameServer::OnAccept(CConnection* lpConnection)
 
 bool CIocpGameServer::OnRecv(CConnection* lpConnection, DWORD dwSize, char* pRecvedMsg)
 {
-	CPlayer* pPlayer = (CPlayer*)lpConnection;
-
+	CPlayer* pPlayer = (CPlayer*)lpConnection;	
 	packet_type type;
 	CopyMemory(&type, pRecvedMsg + PACKET_SIZE_LENGTH, PACKET_TYPE_LENGTH);
 	if (type < 0 || type > MAX_PROCESSFUNC)

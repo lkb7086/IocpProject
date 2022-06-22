@@ -158,12 +158,11 @@ public:
 	CPlayer* m_pHostPlayer;
 	bool m_isNotSetupHost;
 private:
-	concurrent_unordered_map< DWORD, CPlayer* >		m_mapPlayer;
+	unordered_map< unsigned int, CPlayer* >		m_mapPlayer;
 	map<unsigned int, PlayerInfo> m_mapPlayerInfo;
 	//priority_queue <Rank, vector<Rank>, less<Rank> > rankMaxPriQueue;
 	CPlayer*		m_pPlayer;
 
-	CMonitorSRW		m_srwPlayer;
 
 	int m_nNpcAreaCount;
 	unsigned int m_generatePlayerKey;

@@ -49,7 +49,7 @@ bool CAreaManager::AddPlayerToArea(CPlayer* pPlayer, int area)
 		return false;
 	}
 
-	CMonitorSRW::OwnerSRW lock(m_srwArea, LockExclusive);
+	//CMonitorSRW::OwnerSRW lock(m_srwArea, LockExclusive); // 없어도 된다, 왜냐하면 삭제를 이스레드가 하기 때문, 근데 여기는 원래 없어도됨
 
 	auto it = m_mapArea[area].find(pPlayer);
 	if (it != m_mapArea[area].end())
@@ -81,7 +81,7 @@ bool CAreaManager::RemovePlayerFromArea(CPlayer* pPlayer, int byArea)
 		return false;
 	}
 
-	m_mapArea[byArea].erase(pPlayer);
+	m_mapArea[byArea].unsafe_erase(pPlayer);
 	pPlayer->SetArea(-1);
 
 	return true;
@@ -361,7 +361,7 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 	}
 
 	{
-		//CMonitorSRW::OwnerSRW lock(m_srwArea[nZone], LockShared);
+		//CMonitorSRW::OwnerSRW lock(m_srwArea, LockShared); // 없어도 된다, 왜냐하면 삭제를 이스레드가 하기 때문
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// 액티브지역중에서도 새로생긴 액티브지역으로만 패킷을 보내야한다.
 		// 브로드캐스트
@@ -435,7 +435,7 @@ void CAreaManager::Send_UpdateAreaForDeleteObject(CPlayer* pPlayer, bool isNorma
 	m_vecDeleteArea.clear();
 
 	{
-		//CMonitorSRW::OwnerSRW lock(m_srwArea[nZone], LockShared);
+		//CMonitorSRW::OwnerSRW lock(m_srwArea, LockShared); // 없어도 된다, 왜냐하면 삭제를 이스레드가 하기 때문
 		tls_pSer->StartSerialize();
 		tls_pSer->Serialize(static_cast<packet_type>(PacketType::UpdateAreaForDeleteObject_Not));
 		tls_pSer->Serialize(pPlayer->GetKey());
@@ -490,15 +490,16 @@ void CAreaManager::Send_UpdateAreaForDeleteObject(CPlayer* pPlayer, bool isNorma
 
 void CAreaManager::Send_MovePlayerToActiveAreas(CPlayer* pPlayer, char *pRecvedMsg)
 {
-	/*
+	///*
 	if (false == pPlayer->GetIsConfirm())
 		return;
 	MovePlayer_Cn* pMove = (MovePlayer_Cn*)pRecvedMsg;
-	pPlayer->m_pos.x = pMove->x;
-	pPlayer->m_pos.y = pMove->y;
-	pPlayer->m_pos.z = pMove->z;
-	*/
+	pPlayer->m_pos.x = pMove->posX;
+	pPlayer->m_pos.y = pMove->posY;
+	pPlayer->m_pos.z = pMove->posZ;
+	//*/
 
+	//printf("T");
 	CMonitorSRW::OwnerSRW lock(m_srwArea, LockShared);
 
 	int* pActiveAreas = pPlayer->GetActiveAreas();
