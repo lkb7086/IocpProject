@@ -84,6 +84,34 @@ public:
 	// 지역 업데이트
 	void Send_UpdateAreaForCreateObject(CPlayer* pPlayer);
 	void Send_UpdateAreaForDeleteObject(CPlayer* pPlayer, bool isNormal = true);
+
+	void LogoutAreaPlayer_Not(CPlayer* pPlayer)
+	{
+		tls_pSer->StartSerialize();
+		tls_pSer->Serialize(static_cast<packet_type>(PacketType::LogoutAreaPlayer_Not));
+		tls_pSer->Serialize(pPlayer->GetKey());
+
+		int* pActiveAreas = pPlayer->GetActiveAreas();
+		for (int i = 0; i < MAX_ACTIVE_AREAS; i++)
+		{
+			int area = pActiveAreas[i];
+			if (area < 0 || area >= MAX_AREA)
+				continue;
+
+			for (auto it = m_mapArea[area].begin(); it != m_mapArea[area].end(); ++it)
+			{
+				CPlayer* pAreaPlayer = (CPlayer*)*it;
+				if (nullptr == pAreaPlayer || pAreaPlayer == pPlayer)
+					continue;
+				char* pBuf = pAreaPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+				if (nullptr == pBuf)
+					continue;
+				tls_pSer->CopyBuffer(pBuf);
+				pAreaPlayer->SendPost(tls_pSer->GetCurBufSize());
+			}
+		}
+	}
+
 	// 이동
 	void Send_MovePlayerToActiveAreas(CPlayer *pPlayer, char *pRecvedMsg);
 

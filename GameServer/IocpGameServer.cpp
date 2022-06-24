@@ -376,7 +376,7 @@ void CIocpGameServer::OnClose(CConnection* lpConnection)
 	}
 
 
-	AreaManager()->Send_UpdateAreaForDeleteObject(pPlayer, false); // TEST
+	AreaManager()->LogoutAreaPlayer_Not(pPlayer);
 	AreaManager()->RemovePlayerFromArea(pPlayer, pPlayer->GetArea());
 	PlayerManager()->RemovePlayer(pPlayer);
 	PlayerManager()->ErasePlayerInfo(pPlayer->GetKey());
@@ -700,7 +700,7 @@ void CIocpGameServer::ConfirmIDGameServer_Req(CPlayer* pPlayer, char* pRecvedMsg
 	else
 	{
 		m_mapSERVER.erase(key);
-		LOG(LOG_ERROR_LOW, "CIocpGameServer::Recv_LSKey_Cn() | m_setSERVER 중복");
+		LOG(LOG_ERROR_LOW, "CIocpGameServer::ConfirmIDGameServer_Req() | m_setSERVER 중복");
 	}
 }
 

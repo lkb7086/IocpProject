@@ -57,7 +57,7 @@ void CProcessPacket::fnStartGame_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecv
 
 void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
-	//if (pPlayer->GetIsConfirm() == false)
+	if (pPlayer->GetIsConfirm() == false)
 	{
 		PlayerManager()->AddPlayer(pPlayer);
 		PlayerManager()->InitPlayerInfo(*pPlayer);
@@ -66,12 +66,11 @@ void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRec
 		pPlayer->SetIsConfirm(true);
 	}
 
-
-	int area = AreaManager()->GetPosToArea(pPlayer->m_pos);
-	AreaManager()->AddPlayerToArea(pPlayer, area);
+	///*
+	AreaManager()->AddPlayerToArea(pPlayer, AreaManager()->GetPosToArea(pPlayer->m_pos));
 	AreaManager()->UpdateActiveAreas(pPlayer);
 	AreaManager()->Send_UpdateAreaForCreateObject(pPlayer);
-
+	//*/
 
 
 
@@ -151,16 +150,10 @@ void CProcessPacket::fnMoveServer_Not2(CPlayer* pPlayer, DWORD dwSize, char* pRe
 
 void CProcessPacket::fnMovePlayer_Req(CPlayer* _pPlayer, DWORD dwSize, char* _pRecvedMsg)
 {
-	//if (false == pPlayer->GetIsConfirm()) return; // UDP테스트중에는 닫는다
-
 //#ifndef _DEBUG
 	AreaManager()->Send_MovePlayerToActiveAreas(_pPlayer, _pRecvedMsg);
 //#endif
 	
-	
-	
-	//PlayerManager()->Send_MovePlayer_Sn(nullptr,  dwSize, _pRecvedMsg);
-
 	//while (InterlockedExchange((LPLONG)&s_bNpcServLock, TRUE) == TRUE)
 	//Sleep(0);
 	//InterlockedExchange((LPLONG)&s_bNpcServLock, FALSE);
@@ -293,7 +286,7 @@ void CProcessPacket::CL_GS_CL_Chat(CPlayer* pPlayer, DWORD dwSize, char* pRecved
 void CProcessPacket::fnServerTestPacket(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	pPlayer->m_bIsDummy = true;
-	pPlayer->m_pos = Vector3(CMTRand::GetRand_float(-3500.0f, 3500.0f), CMTRand::GetRand_float(-3500.0f, 3500.0f), 10.0f);
+	pPlayer->m_pos = Vector3(CMTRand::GetRand_float(-3500.0f, 3500.0f), CMTRand::GetRand_float(-3500.0f, 3500.0f), 100.0f);
 	fnStartLogin_Not(pPlayer, dwSize, pRecvedMsg);
 	//fnImInWorld_Not(pPlayer, dwSize, pRecvedMsg);
 }
@@ -305,5 +298,5 @@ void CProcessPacket::fnStartLobby_Not(CPlayer* pPlayer, DWORD dwSize, char* pRec
 
 void CProcessPacket::fnLogoutPlayerDB_Not(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
-	DatabaseManager()->LogoutPlayerDB_Not(stPlayerInfo(pPlayer, dwSize, pRecvedMsg));
+	//DatabaseManager()->LogoutPlayerDB_Not(stPlayerInfo(pPlayer, dwSize, pRecvedMsg));
 }

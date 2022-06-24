@@ -36,11 +36,11 @@ enum class PacketType : packet_type
 
 
 	// Áö¿ª
-	UpdateAreaForDeleteObject_Not,
-	UpdateAreaForCreateObjectV_Not,
 	UpdateAreaForCreateObject_Not,
+	UpdateAreaForCreateObjectV_Not,
+	UpdateAreaForDeleteObject_Not,
 	UpdateAreaForDeleteObjectV_Not,
-
+	LogoutAreaPlayer_Not,
 
 	CL_GS_CL_Chat,
 

@@ -77,6 +77,7 @@ void CTickThread::OnProcess()
 		} // while
 
 
+
 //#ifndef _DEBUG
 		//if ((m_dwTickCount % KEEPALIVE_TICK) == 0)
 			//IocpGameServer()->CheckKeepAliveTick(m_dwTickCount);
@@ -93,7 +94,7 @@ void CTickThread::OnProcess()
 		*/
 
 		// 플레이어 영역업데이트
-		if (0 == (m_dwTickCount & 31))
+		//if (0 == (m_dwTickCount & 31))
 		{
 			AreaManager()->DoUpdateArea_ZonePlayers();
 		}

@@ -133,40 +133,79 @@ void CAreaManager::UpdateActiveAreas(CPlayer* pPlayer)
 	int arrNewActiveAreas[MAX_ACTIVE_AREAS];
 	fill_n(arrNewActiveAreas, MAX_ACTIVE_AREAS, -1);
 
+	
 	//왼쪽 위
 	int newArea = oldArea - AREA_SECTOR_CNT - 1;
-	if (newArea >= 0)
+	if (newArea >= 0 && newArea < MAX_AREA)
 		arrNewActiveAreas[EDirection::DIR_LEFTUP] = newArea;
 	//위
 	newArea = oldArea - AREA_SECTOR_CNT;
-	if (newArea >= 0)
+	if (newArea >= 0 && newArea < MAX_AREA)
 		arrNewActiveAreas[EDirection::DIR_UP] = newArea;
 	//오른쪽 위
 	newArea = oldArea - AREA_SECTOR_CNT + 1;
-	if (newArea >= 0)
+	if (newArea >= 0 && newArea < MAX_AREA)
 		arrNewActiveAreas[EDirection::DIR_RIGHTUP] = newArea;
 	//왼쪽
 	newArea = oldArea - 1;
-	if (newArea >= 0)
+	if (newArea >= 0 && newArea < MAX_AREA)
 		arrNewActiveAreas[EDirection::DIR_LEFT] = newArea;
 	//중간
 	arrNewActiveAreas[EDirection::DIR_CENTER] = oldArea;
 	//오른쪽
 	newArea = oldArea + 1;
-	if (newArea < MAX_AREA)
+	if (newArea >= 0 && newArea < MAX_AREA)
 		arrNewActiveAreas[EDirection::DIR_RIGHT] = newArea;
 	//왼쪽 아래
 	newArea = oldArea + AREA_SECTOR_CNT - 1;
-	if (newArea < MAX_AREA)
+	if (newArea >= 0 && newArea < MAX_AREA)
 		arrNewActiveAreas[EDirection::DIR_LEFTDOWN] = newArea;
 	//아래
 	newArea = oldArea + AREA_SECTOR_CNT;
-	if (newArea < MAX_AREA)
+	if (newArea >= 0 && newArea < MAX_AREA)
 		arrNewActiveAreas[EDirection::DIR_DOWN] = newArea;
 	//오른쪽 아래
 	newArea = oldArea + AREA_SECTOR_CNT + 1;
-	if (newArea < MAX_AREA)
+	if (newArea >= 0 && newArea < MAX_AREA)
 		arrNewActiveAreas[EDirection::DIR_RIGHTDOWN] = newArea;
+	
+
+	/*
+	// 왼쪽 위
+	int newArea = oldArea + AREA_SECTOR_CNT - 1;
+	if (newArea >= 0 && newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_LEFTUP] = newArea;
+	//위
+	newArea = oldArea - AREA_SECTOR_CNT;
+	if (newArea >= 0 && newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_UP] = newArea;
+	//오른쪽 위
+	newArea = oldArea + AREA_SECTOR_CNT + 1;
+	if (newArea >= 0 && newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_RIGHTUP] = newArea;
+	//왼쪽
+	newArea = oldArea - 1;
+	if (newArea >= 0 && newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_LEFT] = newArea;
+	//중간
+	arrNewActiveAreas[EDirection::DIR_CENTER] = oldArea;
+	//오른쪽
+	newArea = oldArea + 1;
+	if (newArea >= 0 && newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_RIGHT] = newArea;
+	//왼쪽 아래
+	newArea = oldArea - AREA_SECTOR_CNT - 1;
+	if (newArea >= 0 && newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_LEFTDOWN] = newArea;
+	//아래
+	newArea = oldArea - AREA_SECTOR_CNT;
+	if (newArea >= 0 && newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_DOWN] = newArea;
+	//오른쪽 아래
+	newArea = oldArea - AREA_SECTOR_CNT + 1;
+	if (newArea >= 0 && newArea < MAX_AREA)
+		arrNewActiveAreas[EDirection::DIR_RIGHTDOWN] = newArea;
+	*/
 
 	///////////////////////////////////////////////////////
 	// 현재 활동영역과 이전 활동영역을 비교해서 이전 활동 영역중
@@ -368,10 +407,13 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 		tls_pSer->StartSerialize();
 		tls_pSer->Serialize(static_cast<packet_type>(PacketType::UpdateAreaForCreateObject_Not));
 		tls_pSer->Serialize(pPlayer->GetKey());
-		tls_pSer->Serialize(pPlayer->GetHP());
 		tls_pSer->Serialize(pPlayer->m_pos.x);
 		tls_pSer->Serialize(pPlayer->m_pos.y);
 		tls_pSer->Serialize(pPlayer->m_pos.z);
+		tls_pSer->Serialize(pPlayer->GetGender());
+		tls_pSer->Serialize(pPlayer->GetHeight());
+		tls_pSer->Serialize(pPlayer->GetWidth());
+
 
 		for (unsigned int i = 0; i < stackSize; i++)
 		{
@@ -413,10 +455,12 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 				if (nullptr == pAreaPlayer || pPlayer == pAreaPlayer)
 					continue;
 				tls_pSer->Serialize(pAreaPlayer->GetKey());
-				tls_pSer->Serialize(pAreaPlayer->GetHP());
 				tls_pSer->Serialize(pAreaPlayer->m_pos.x);
 				tls_pSer->Serialize(pAreaPlayer->m_pos.y);
 				tls_pSer->Serialize(pAreaPlayer->m_pos.z);
+				tls_pSer->Serialize(pPlayer->GetGender());
+				tls_pSer->Serialize(pPlayer->GetHeight());
+				tls_pSer->Serialize(pPlayer->GetWidth());
 			}
 		}
 		char* pSendBuffer = pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
@@ -493,10 +537,29 @@ void CAreaManager::Send_MovePlayerToActiveAreas(CPlayer* pPlayer, char *pRecvedM
 	///*
 	if (false == pPlayer->GetIsConfirm())
 		return;
-	MovePlayer_Cn* pMove = (MovePlayer_Cn*)pRecvedMsg;
-	pPlayer->m_pos.x = pMove->posX;
-	pPlayer->m_pos.y = pMove->posY;
-	pPlayer->m_pos.z = pMove->posZ;
+	
+	if (!pPlayer->m_bIsDummy)
+	{
+		MovePlayer_Cn* pMove = (MovePlayer_Cn*)pRecvedMsg;
+		pPlayer->m_pos.x = pMove->posX;
+		pPlayer->m_pos.y = pMove->posY;
+		pPlayer->m_pos.z = pMove->posZ;
+	}
+	else
+	{
+		if (rand() % 2 == 0)
+		{
+			if (rand() % 2 == 0)
+				pPlayer->m_pos.x -= 10.0f;
+			else
+				pPlayer->m_pos.x += 10.0f;
+
+			if (rand() % 2 == 0)
+				pPlayer->m_pos.y -= 10.0f;
+			else
+				pPlayer->m_pos.y += 10.0f;
+		}
+	}
 	//*/
 
 	//printf("T");

@@ -163,8 +163,8 @@ public:
 	GETSET(char, CharacterIndex, m_characterIndex);
 	GETSET(char, Species, m_species);
 	GETSET(char, Gender, m_gender);
-	GETSET(char, Height, m_height);
-	GETSET(char, Width, m_width);
+	GETSET(float, Height, m_height);
+	GETSET(float, Width, m_width);
 	GETSET(int, CurCharacterCnt, m_curCharacterCnt);
 
 	Node* m_pPrevMoveNode;
