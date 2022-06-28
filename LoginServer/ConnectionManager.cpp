@@ -53,9 +53,7 @@ bool CConnectionManager::AddConnection(CConnection* pConnection)
 	//이미 접속되어 있는 연결이라면
 	if (conn_it != m_mapConnection.end())
 	{
-		LOG(LOG_ERROR_LOW,
-			"SYSTEM | CConnectionManager::AddConnection() | index[%d]는 이미 m_mapConnection에 있습니다.",
-			pConnection->GetIndex());
+		LOG(LOG_ERROR_LOW, "SYSTEM | CConnectionManager::AddConnection() | index[%d]는 이미 m_mapConnection에 있습니다.", pConnection->GetIndex());
 		return false;
 	}
 

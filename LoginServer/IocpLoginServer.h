@@ -63,6 +63,7 @@ private:
 
 	unsigned long long				m_nPrivateKey;
 
+	CMonitor m_csAccept;
 
 	typedef void(*funcProcessPacket)(CConnection* lpConnection, DWORD dwSize, char* pRecvedMsg);
 	typedef pair< PacketType, funcProcessPacket >			PACKET_PAIR;

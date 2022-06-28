@@ -413,6 +413,9 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 		tls_pSer->Serialize(pPlayer->GetGender());
 		tls_pSer->Serialize(pPlayer->GetHeight());
 		tls_pSer->Serialize(pPlayer->GetWidth());
+		tls_pSer->Serialize(pPlayer->m_rot.x);
+		tls_pSer->Serialize(pPlayer->m_rot.y);
+		tls_pSer->Serialize(pPlayer->m_rot.z);
 
 
 		for (unsigned int i = 0; i < stackSize; i++)
@@ -458,9 +461,12 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 				tls_pSer->Serialize(pAreaPlayer->m_pos.x);
 				tls_pSer->Serialize(pAreaPlayer->m_pos.y);
 				tls_pSer->Serialize(pAreaPlayer->m_pos.z);
-				tls_pSer->Serialize(pPlayer->GetGender());
-				tls_pSer->Serialize(pPlayer->GetHeight());
-				tls_pSer->Serialize(pPlayer->GetWidth());
+				tls_pSer->Serialize(pAreaPlayer->GetGender());
+				tls_pSer->Serialize(pAreaPlayer->GetHeight());
+				tls_pSer->Serialize(pAreaPlayer->GetWidth());
+				tls_pSer->Serialize(pAreaPlayer->m_rot.x);
+				tls_pSer->Serialize(pAreaPlayer->m_rot.y);
+				tls_pSer->Serialize(pAreaPlayer->m_rot.z);
 			}
 		}
 		char* pSendBuffer = pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
@@ -544,6 +550,10 @@ void CAreaManager::Send_MovePlayerToActiveAreas(CPlayer* pPlayer, char *pRecvedM
 		pPlayer->m_pos.x = pMove->posX;
 		pPlayer->m_pos.y = pMove->posY;
 		pPlayer->m_pos.z = pMove->posZ;
+
+		pPlayer->m_rot.x = pMove->rotX;
+		pPlayer->m_rot.y = pMove->rotY;
+		pPlayer->m_rot.z = pMove->rotZ;
 	}
 	else
 	{
@@ -589,6 +599,9 @@ void CAreaManager::Send_MovePlayerToActiveAreas(CPlayer* pPlayer, char *pRecvedM
 			pMove->posX = pPlayer->m_pos.x;
 			pMove->posY = pPlayer->m_pos.y;
 			pMove->posZ = pPlayer->m_pos.z;
+			pMove->rotX = pPlayer->m_rot.x;
+			pMove->rotY = pPlayer->m_rot.y;
+			pMove->rotZ = pPlayer->m_rot.z;
 
 			pAreaPlayer->SendPost(sizeof(MovePlayer_Sn));
 			//IocpGameServer()->UDP_unsafe_SendPost(sizeof(MovePlayer_Sn), pAreaPlayer);

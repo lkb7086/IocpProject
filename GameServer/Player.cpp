@@ -20,6 +20,7 @@ void CPlayer::InitPlayer()
 	m_key = 0;
 	m_isMoveServer = false;
 	m_pos.Zero();
+	m_rot.Zero();
 
 	m_pPrevMoveNode = nullptr;
 	InitPrevMoveNode();

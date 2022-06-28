@@ -71,7 +71,9 @@ void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRec
 	AreaManager()->UpdateActiveAreas(pPlayer);
 	AreaManager()->Send_UpdateAreaForCreateObject(pPlayer);
 	//*/
-
+	//printf("%d", pPlayer->GetGender());
+	//printf("%f", pPlayer->GetHeight());
+	//printf("%f", pPlayer->GetWidth());
 
 
 	LOG(LOG_INFO_LOW, "ID (%u) Connected. / Current Players (%u)",
@@ -280,13 +282,21 @@ void CProcessPacket::CL_GS_CL_CureDeadPlayer(CPlayer* pPlayer, DWORD dwSize, cha
 
 void CProcessPacket::CL_GS_CL_Chat(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
-	PlayerManager()->Send_TCP_RecvBufferFromServer(pRecvedMsg, dwSize);
+	char* pSendBuffer = pPlayer->PrepareSendPacket(dwSize);
+	if (nullptr == pSendBuffer)
+		return;
+	CopyMemory(pSendBuffer, pRecvedMsg, dwSize);
+	pPlayer->SendPost(dwSize);
+
+	//PlayerManager()->Send_TCP_RecvBufferFromServer(pRecvedMsg, dwSize);
 }
 
 void CProcessPacket::fnServerTestPacket(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
 	pPlayer->m_bIsDummy = true;
 	pPlayer->m_pos = Vector3(CMTRand::GetRand_float(-3500.0f, 3500.0f), CMTRand::GetRand_float(-3500.0f, 3500.0f), 100.0f);
+	pPlayer->SetHeight(0.5f);
+	pPlayer->SetWidth(0.5f);
 	fnStartLogin_Not(pPlayer, dwSize, pRecvedMsg);
 	//fnImInWorld_Not(pPlayer, dwSize, pRecvedMsg);
 }

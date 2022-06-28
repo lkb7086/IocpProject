@@ -57,6 +57,10 @@ void CIocpLoginServer::OnClose_IocpServer() {}
 //client가 접속 수락이 되었을 때 호출되는 함수
 bool CIocpLoginServer::OnAccept(CConnection *lpConnection)
 {
+	LOG(LOG_INFO_LOW, "SYSTEM | CIocpLoginServer::OnAccept() | Socket: %d", lpConnection->GetSocket());
+
+	CMonitor::Owner lock(m_csAccept);
+
 	/*
 	stUtil_Empty* pBuffer = (stUtil_Empty*)lpConnection->PrepareSendPacket(sizeof(stUtil_Empty));
 	if (nullptr == pBuffer)
@@ -67,8 +71,6 @@ bool CIocpLoginServer::OnAccept(CConnection *lpConnection)
 
 
 	ConnectionManager()->AddConnection(lpConnection);
-
-	LOG(LOG_INFO_LOW, "SYSTEM | CIocpLoginServer::OnAccept() | Socket: %d", lpConnection->GetSocket());
 	
 	return true;
 }
@@ -127,6 +129,10 @@ void CIocpLoginServer::OnPrepareClose(CConnection* lpConnection)
 //client와 연결이 종료되었을 때 호출되는 함수
 void CIocpLoginServer::OnClose(CConnection* lpConnection)
 {
+	LOG(LOG_INFO_LOW, "SYSTEM | CIocpLoginServer::OnClose() | 종료 ConnectionCnt %d", ConnectionManager()->GetConnectionCnt());
+
+	CMonitor::Owner lock(m_csAccept);
+
 	if (nullptr == lpConnection)
 		return;
 
@@ -140,8 +146,6 @@ void CIocpLoginServer::OnClose(CConnection* lpConnection)
 	}
 	
 	((CPlayer*)lpConnection)->Init();
-
-	LOG(LOG_INFO_LOW, "SYSTEM | CIocpLoginServer::OnClose() | 종료 ConnectionCnt %d", ConnectionManager()->GetConnectionCnt());
 }
 
 bool CIocpLoginServer::OnSystemMsg(CConnection* lpConnection, LPARAM msgType, WPARAM wParam)

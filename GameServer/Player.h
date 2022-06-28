@@ -172,6 +172,7 @@ public:
 	Vector3 m_targetPos;
 	bool    m_bIsAutoAttack;
 	Vector3 m_pos;
+	Vector3 m_rot;
 	bool    m_isDead;
 	bool    m_isAccept;
 	bool    m_isInitNPCInfo;

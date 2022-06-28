@@ -115,6 +115,10 @@ struct MovePlayer_Cn : PacketHeader
 	float posX;
 	float posY;
 	float posZ;
+
+	float rotX;
+	float rotY;
+	float rotZ;
 };
 
 struct MovePlayer_Sn : PacketHeader
@@ -123,14 +127,9 @@ struct MovePlayer_Sn : PacketHeader
 	float posX;
 	float posY;
 	float posZ;
-};
 
-struct stCL_GS_UpdateAreaForDeleteObject : PacketHeader
-{
-	unsigned int	uiPKey;
-	int hp;
-	float fPosX;
-	float fPosY;
-	float fPosZ;
+	float rotX;
+	float rotY;
+	float rotZ;
 };
 #pragma pack(pop)
