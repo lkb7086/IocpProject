@@ -155,12 +155,17 @@ void CSerializer::Deserialize(char *pszBuffer, unsigned short usLen) // ¹®ÀÚ¿­
 // Serialize 
 void CSerializer::Serialize(float fFloat)
 {
+	/*
 	int nNum = *((int*)(&fFloat));
 	*m_pCurMark++ = nNum;
 	*m_pCurMark++ = nNum >> 8;
 	*m_pCurMark++ = nNum >> 16;
 	*m_pCurMark++ = nNum >> 24;
 	m_nCurBufSize += sizeof(float);
+	*/
+
+	memcpy_s(m_pCurMark, m_nMaxBufSize - m_nCurBufSize, &fFloat, sizeof(float));
+	m_pCurMark += sizeof(float); m_nCurBufSize += sizeof(float);
 }
 
 void CSerializer::Serialize(const long long llLongLong)

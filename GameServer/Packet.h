@@ -15,7 +15,7 @@ enum class PacketType : packet_type
 	DeleteCharacter_Res,
 	StartGame_Res,
 	StartLogin_Not,
-
+	CreateObjects_Not,
 
 
 	// 이동
@@ -23,8 +23,10 @@ enum class PacketType : packet_type
 	MovePlayer_Res,
 
 	// 컬러
-	ChangeColor_Req,
-	ChangeColor_Res,
+	ChangeColorPlayer_Req,
+	ChangeColorPlayer_Res,
+	ChangeColorObject_Req,
+	ChangeColorObject_Res,
 	// 서버이동
 	MoveServer_Req,
 	MoveServer_Res,
@@ -43,7 +45,6 @@ enum class PacketType : packet_type
 	LogoutAreaPlayer_Not,
 
 	CL_GS_CL_Chat,
-
 
 
 

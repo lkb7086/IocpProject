@@ -86,7 +86,7 @@ public:
 			}
 		}
 
-		AreaManager()->RelayWithoutPlayer(pPlayer, dwSize, pMsg);
+		//AreaManager()->RelayWithoutPlayer(pPlayer, dwSize, pMsg);
 	}
 
 	void DoDetectNPC(CMovingNPC& npc)

@@ -47,7 +47,12 @@ struct Color
 
 	Color()
 	{
-		memset(this, 0, sizeof(Color));
+		//memset(this, 0, sizeof(Color));
+		r = 1.0f;
+		g = 1.0f;
+		b = 1.0f;
+		a = 1.0f;
+		mode = 0;
 	}
 };
 

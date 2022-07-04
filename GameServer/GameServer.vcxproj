@@ -175,6 +175,7 @@
     <ClInclude Include="NormalNPC.h" />
     <ClInclude Include="NPC.h" />
     <ClInclude Include="NPCManager.h" />
+    <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Pathfinding.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerManager.h" />
@@ -204,6 +205,7 @@
     <ClCompile Include="NormalNPC.cpp" />
     <ClCompile Include="NPC.cpp" />
     <ClCompile Include="NPCManager.cpp" />
+    <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Pathfinding.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerManager.cpp" />

@@ -416,6 +416,10 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 		tls_pSer->Serialize(pPlayer->m_rot.x);
 		tls_pSer->Serialize(pPlayer->m_rot.y);
 		tls_pSer->Serialize(pPlayer->m_rot.z);
+		tls_pSer->Serialize(pPlayer->m_color.r);
+		tls_pSer->Serialize(pPlayer->m_color.g);
+		tls_pSer->Serialize(pPlayer->m_color.b);
+		tls_pSer->Serialize(pPlayer->m_color.a);
 
 
 		for (unsigned int i = 0; i < stackSize; i++)
@@ -467,6 +471,10 @@ void CAreaManager::Send_UpdateAreaForCreateObject(CPlayer* pPlayer)
 				tls_pSer->Serialize(pAreaPlayer->m_rot.x);
 				tls_pSer->Serialize(pAreaPlayer->m_rot.y);
 				tls_pSer->Serialize(pAreaPlayer->m_rot.z);
+				tls_pSer->Serialize(pAreaPlayer->m_color.r);
+				tls_pSer->Serialize(pAreaPlayer->m_color.g);
+				tls_pSer->Serialize(pAreaPlayer->m_color.b);
+				tls_pSer->Serialize(pAreaPlayer->m_color.a);
 			}
 		}
 		char* pSendBuffer = pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
@@ -645,6 +653,7 @@ void CAreaManager::DetectPlayerFromNPC(CNPC* pDetectNPC)
 
 void CAreaManager::ChangeColor_Req(CPlayer* pPlayer)
 {
+	/*
 	tls_pSer->StartSerialize();
 	tls_pSer->Serialize(static_cast<packet_type>(PacketType::ChangeColor_Res));
 	tls_pSer->Serialize(pPlayer->m_color.r);
@@ -672,4 +681,5 @@ void CAreaManager::ChangeColor_Req(CPlayer* pPlayer)
 			pPlayer->SendPost(tls_pSer->GetCurBufSize());
 		}
 	}
+	*/
 }

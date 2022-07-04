@@ -10,7 +10,7 @@ public:
 	// 유틸리티
 	void Send_TCP_RecvBufferFromServer(DWORD dwSize, char* pRecvBuffer); // 플레이어에게 서버에서 받은 버퍼를 그대로 보낸다
 
-	void RelayWithoutPlayer(CPlayer* pPlayer, DWORD size, char* pMsg)
+	void SendTLSBuffer(bool isMine, CPlayer* pPlayer)
 	{
 		int* pActiveAreas = pPlayer->GetActiveAreas();
 		for (int i = 0; i < MAX_ACTIVE_AREAS; i++)
@@ -21,13 +21,16 @@ public:
 			for (auto it = m_mapArea[activeArea].begin(); it != m_mapArea[activeArea].end(); ++it)
 			{
 				CPlayer* pAreaPlayer = (CPlayer*)*it;
-				if (pAreaPlayer == pPlayer)
-					continue;
-				char* pBuf = pAreaPlayer->PrepareSendPacket(size);
+				if (isMine == false)
+				{
+					if (pAreaPlayer == pPlayer)
+						continue;
+				}
+				char* pBuf = pAreaPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
 				if (nullptr == pBuf)
 					continue;
-				memcpy_s(pBuf, size, pMsg, size);
-				pAreaPlayer->SendPost(size);
+				tls_pSer->CopyBuffer(pBuf);
+				pAreaPlayer->SendPost(tls_pSer->GetCurBufSize());
 			}
 		}
 	}
@@ -111,6 +114,7 @@ public:
 			}
 		}
 	}
+
 
 	// 이동
 	void Send_MovePlayerToActiveAreas(CPlayer *pPlayer, char *pRecvedMsg);

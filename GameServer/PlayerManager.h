@@ -130,6 +130,25 @@ public:
 	void Send_TCP_WithPacketTypeToPlayer(CPlayer* _pPlayer, PacketType _eType); // 한 플레이어에게 패킷타입으로 보내는 함수
 
 
+	void SendTLSBuffer(bool isMine, CPlayer* pPlayer)
+	{
+		for (auto it = m_mapPlayer.begin(); it != m_mapPlayer.end(); ++it)
+		{
+			CPlayer* pWorldPlayer = (CPlayer*)it->second;
+			if (isMine == false)
+			{
+				if (pWorldPlayer == pPlayer)
+					continue;
+			}
+			char* pSendBuffer = pWorldPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+			if (nullptr == pSendBuffer)
+				continue;
+			tls_pSer->CopyBuffer(pSendBuffer);
+			pWorldPlayer->SendPost(tls_pSer->GetCurBufSize());
+		}
+	}
+
+
 	void InitPlayerInfo(CPlayer& player)
 	{
 		auto it = m_mapPlayerInfo.find(player.GetKey());

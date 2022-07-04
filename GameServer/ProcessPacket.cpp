@@ -70,6 +70,9 @@ void CProcessPacket::fnStartLogin_Not(CPlayer* pPlayer, DWORD dwSize, char* pRec
 	AreaManager()->AddPlayerToArea(pPlayer, AreaManager()->GetPosToArea(pPlayer->m_pos));
 	AreaManager()->UpdateActiveAreas(pPlayer);
 	AreaManager()->Send_UpdateAreaForCreateObject(pPlayer);
+
+	ObjectManager()->CreateObjects_Not(pPlayer);
+
 	//*/
 	//printf("%d", pPlayer->GetGender());
 	//printf("%f", pPlayer->GetHeight());
@@ -161,16 +164,61 @@ void CProcessPacket::fnMovePlayer_Req(CPlayer* _pPlayer, DWORD dwSize, char* _pR
 	//InterlockedExchange((LPLONG)&s_bNpcServLock, FALSE);
 }
 
-void CProcessPacket::fnChangeColor_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+void CProcessPacket::fnChangeColorPlayer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
 {
+	float r = 0.0f; float g = 0.0f; float b = 0.0f; float a = 0.0f;
 	tls_pSer->StartDeserialize(pRecvedMsg);
-	tls_pSer->Deserialize(pPlayer->m_color.r);
-	tls_pSer->Deserialize(pPlayer->m_color.g);
-	tls_pSer->Deserialize(pPlayer->m_color.b);
-	tls_pSer->Deserialize(pPlayer->m_color.a);
-	tls_pSer->Deserialize(pPlayer->m_color.mode);
+	tls_pSer->Deserialize(r);
+	tls_pSer->Deserialize(g);
+	tls_pSer->Deserialize(b);
+	tls_pSer->Deserialize(a);
 
-	AreaManager()->ChangeColor_Req(pPlayer);
+	// 컬러변경
+	pPlayer->m_color.r = r;
+	pPlayer->m_color.g = g;
+	pPlayer->m_color.b = b;
+	pPlayer->m_color.a = a;
+
+
+
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::ChangeColorPlayer_Res));
+	tls_pSer->Serialize(pPlayer->GetKey());
+	tls_pSer->Serialize(r);
+	tls_pSer->Serialize(g);
+	tls_pSer->Serialize(b);
+	tls_pSer->Serialize(a);
+
+	AreaManager()->SendTLSBuffer(false, pPlayer);
+}
+
+void CProcessPacket::fnChangeColorObject_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)
+{
+	unsigned int key = 0; float r = 0.0f; float g = 0.0f; float b = 0.0f; float a = 0.0f;
+	tls_pSer->StartDeserialize(pRecvedMsg);
+	tls_pSer->Deserialize(key);
+	tls_pSer->Deserialize(r);
+	tls_pSer->Deserialize(g);
+	tls_pSer->Deserialize(b);
+	tls_pSer->Deserialize(a);
+
+
+	Cube* pCube = ObjectManager()->FindCube(key);
+	if (pCube == nullptr)
+		return;
+
+	// 컬러변경
+	pCube->r = r; pCube->g = g; pCube->b = b; pCube->a = a;
+
+	tls_pSer->StartSerialize();
+	tls_pSer->Serialize(static_cast<packet_type>(PacketType::ChangeColorObject_Res));
+	tls_pSer->Serialize(key);
+	tls_pSer->Serialize(r);
+	tls_pSer->Serialize(g);
+	tls_pSer->Serialize(b);
+	tls_pSer->Serialize(a);
+
+	PlayerManager()->SendTLSBuffer(true, pPlayer);
 }
 
 void CProcessPacket::fnMoveServer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg)

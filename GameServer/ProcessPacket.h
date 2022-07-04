@@ -29,7 +29,8 @@ public:
 	
 
 	static void fnMovePlayer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
-	static void fnChangeColor_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnChangeColorPlayer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
+	static void fnChangeColorObject_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnMoveServer_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	static void fnPlayerInfoAndMoveLevel_Req(CPlayer* pPlayer, DWORD dwSize, char* pRecvedMsg);
 	

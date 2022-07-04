@@ -75,7 +75,8 @@ void CIocpGameServer::InitProcessFunc()
 
 
 	mapPakect.insert(PACKET_PAIR(PacketType::MovePlayer_Req, CProcessPacket::fnMovePlayer_Req));
-	mapPakect.insert(PACKET_PAIR(PacketType::ChangeColor_Req, CProcessPacket::fnChangeColor_Req));
+	mapPakect.insert(PACKET_PAIR(PacketType::ChangeColorPlayer_Req, CProcessPacket::fnChangeColorPlayer_Req));
+	mapPakect.insert(PACKET_PAIR(PacketType::ChangeColorObject_Req, CProcessPacket::fnChangeColorObject_Req));
 	mapPakect.insert(PACKET_PAIR(PacketType::CL_GS_CL_Chat, CProcessPacket::CL_GS_CL_Chat));
 	mapPakect.insert(PACKET_PAIR(PacketType::MoveServer_Req, CProcessPacket::fnMoveServer_Req)); //
 	mapPakect.insert(PACKET_PAIR(PacketType::PlayerInfoAndMoveLevel_Req, CProcessPacket::fnPlayerInfoAndMoveLevel_Req)); //
@@ -242,6 +243,28 @@ bool CIocpGameServer::OnRecv(CConnection* lpConnection, DWORD dwSize, char* pRec
 			CIocpServer::CloseConnection(lpConnection);
 		}
 		return true;
+	}
+
+	if (type == 24)
+	{
+		float f = 0.0f; char str[128]; memset(str, 0, sizeof(str));
+		tls_pSer->StartDeserialize(pRecvedMsg);
+		tls_pSer->Deserialize(f);
+		tls_pSer->Deserialize(str, sizeof(str));
+		printf("%f %s\n", f, str);
+
+
+		/*
+		tls_pSer->StartSerialize();
+		tls_pSer->Serialize(flo);
+		tls_pSer->Serialize(flo);
+		char* pBuf = pPlayer->PrepareSendPacket(tls_pSer->GetCurBufSize());
+		if (pBuf == nullptr)
+			return true;
+		tls_pSer->CopyBuffer(pBuf);
+		pPlayer->SendPost(tls_pSer->GetCurBufSize());
+		return true;
+		*/
 	}
 
 	auto it = mapPakect.find(static_cast<PacketType>(type));

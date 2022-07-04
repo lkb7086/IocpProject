@@ -28,3 +28,4 @@
 #include "ItemManager.h"
 #include "DatabaseManager.h"
 #include "NPCManager.h"
+#include "ObjectManager.h"
